@@ -1,0 +1,217 @@
+:host {
+  display: block;
+}
+
+.login-page {
+  --primary: #13ec13;
+  --bg-dark: #102210;
+  --text-main: #eef5ee;
+  --text-muted: #a0b2a0;
+  --field-bg: rgba(12, 27, 12, 0.65);
+  --field-border: rgba(19, 236, 19, 0.2);
+
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(circle at 10% 10%, rgba(19, 236, 19, 0.2), transparent 30%),
+    radial-gradient(circle at 90% 90%, rgba(19, 236, 19, 0.12), transparent 35%),
+    var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(19, 236, 19, 0.22) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.2;
+}
+
+.texture-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(16, 34, 16, 0.15), rgba(16, 34, 16, 0.8));
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+.brand {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.logo-wrap {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 1rem;
+}
+
+.logo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(19, 236, 19, 0.2);
+  box-shadow: 0 0 24px rgba(19, 236, 19, 0.3);
+}
+
+.logo-core {
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #0c1d0c;
+  border: 1px solid rgba(19, 236, 19, 0.45);
+}
+
+.pin {
+  font-size: 1.5rem;
+}
+
+.pet {
+  position: absolute;
+  font-size: 0.9rem;
+  transform: translateY(13px);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.brand p {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+}
+
+.card {
+  margin-top: 1.25rem;
+  border-radius: 14px;
+  padding: 1.25rem;
+  border: 1px solid rgba(19, 236, 19, 0.1);
+  background: rgba(16, 34, 16, 0.65);
+  backdrop-filter: blur(10px);
+}
+
+.welcome h2 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.welcome p {
+  margin: 0.35rem 0 1rem;
+  color: var(--text-muted);
+}
+
+.form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.form label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form input {
+  height: 50px;
+  border-radius: 10px;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  color: var(--text-main);
+  padding: 0 0.8rem;
+  font: inherit;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.password-row {
+  margin-top: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.password-row a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.primary-btn {
+  margin-top: 0.65rem;
+  height: 52px;
+  border: 0;
+  border-radius: 11px;
+  font: inherit;
+  font-weight: 800;
+  background: var(--primary);
+  color: #102210;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  filter: brightness(0.95);
+}
+
+.divider {
+  margin: 1rem 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.social {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.social button {
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(192, 210, 192, 0.2);
+  background: rgba(8, 18, 8, 0.65);
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.signup {
+  margin: 1rem 0 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.signup a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+@media (max-width: 420px) {
+  .content {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+}

@@ -1,0 +1,50 @@
+<main class="login-page">
+  <div class="bg-layer"></div>
+  <div class="texture-layer"></div>
+
+  <section class="content">
+    <header class="brand">
+      <div class="logo-wrap">
+        <div class="logo-ring"></div>
+        <div class="logo-core">
+          <span class="pin">📍</span>
+          <span class="pet">🐾</span>
+        </div>
+      </div>
+      <h1>PetTrack</h1>
+      <p>Keep them safe, everywhere.</p>
+    </header>
+
+    <article class="card">
+      <div class="welcome">
+        <h2>Welcome back!</h2>
+        <p>Please sign in to continue tracking.</p>
+      </div>
+
+      <form class="form" autocomplete="on">
+        <label for="email">Email Address</label>
+        <input id="email" name="email" type="email" placeholder="buddy@example.com" />
+
+        <div class="password-row">
+          <label for="password">Password</label>
+          <a href="#">Forgot Password?</a>
+        </div>
+        <input id="password" name="password" type="password" placeholder="••••••••" />
+
+        <button type="button" class="primary-btn">Login</button>
+      </form>
+
+      <div class="divider">OR CONTINUE WITH</div>
+
+      <div class="social">
+        <button type="button">Facebook</button>
+        <button type="button">Google</button>
+      </div>
+
+      <p class="signup">
+        Don't have an account?
+        <a routerLink="/register">Create one</a>
+      </p>
+    </article>
+  </section>
+</main>

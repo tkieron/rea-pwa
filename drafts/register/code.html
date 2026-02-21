@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PetTrack - Join the Pack</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec13",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .pet-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 15c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm12-4c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM9 25c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm24 4c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z' fill='%2313ec13' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .mat-input-container:focus-within .mat-label {
+            color: #13ec13;
+        }
+        .mat-input-container:focus-within .mat-outline {
+            border-color: #13ec13;
+            border-width: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display selection:bg-primary/30">
+<!-- Background Pattern Layer -->
+<div class="fixed inset-0 pet-pattern pointer-events-none"></div>
+<div class="relative z-10 flex flex-col min-h-screen w-full max-w-md mx-auto px-6 py-8 justify-between">
+<!-- Header Section -->
+<header class="flex flex-col items-center text-center mt-8">
+<div class="bg-primary/20 p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1">pets</span>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Join the Pack</h1>
+<p class="text-slate-600 dark:text-slate-400 text-base">Create an account to start tracking your furry friends</p>
+</header>
+<!-- Registration Form -->
+<main class="flex-1 flex flex-col justify-center gap-5 mt-10">
+<!-- Full Name -->
+<div class="mat-input-container group flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1 mat-label transition-colors">Full Name</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400 group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full bg-white dark:bg-background-dark/50 border border-slate-200 dark:border-primary/20 rounded-lg py-4 pl-12 pr-4 outline-none focus:ring-1 focus:ring-primary focus:border-primary mat-outline transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="John Doe" type="text"/>
+</div>
+</div>
+<!-- Email Address -->
+<div class="mat-input-container group flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1 mat-label transition-colors">Email Address</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400 group-focus-within:text-primary transition-colors">mail</span>
+<input class="w-full bg-white dark:bg-background-dark/50 border border-slate-200 dark:border-primary/20 rounded-lg py-4 pl-12 pr-4 outline-none focus:ring-1 focus:ring-primary focus:border-primary mat-outline transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="john@example.com" type="email"/>
+</div>
+</div>
+<!-- Password -->
+<div class="mat-input-container group flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1 mat-label transition-colors">Password</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full bg-white dark:bg-background-dark/50 border border-slate-200 dark:border-primary/20 rounded-lg py-4 pl-12 pr-12 outline-none focus:ring-1 focus:ring-primary focus:border-primary mat-outline transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 text-slate-400 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="mat-input-container group flex flex-col gap-1.5">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1 mat-label transition-colors">Confirm Password</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full bg-white dark:bg-background-dark/50 border border-slate-200 dark:border-primary/20 rounded-lg py-4 pl-12 pr-4 outline-none focus:ring-1 focus:ring-primary focus:border-primary mat-outline transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Primary Action Button -->
+<button class="mt-4 w-full bg-primary hover:bg-primary/90 text-background-dark font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20 group">
+<span>Register</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</main>
+<!-- Footer Link -->
+<footer class="mt-12 text-center pb-4">
+<p class="text-slate-600 dark:text-slate-400">
+                Already have an account? 
+                <a class="text-primary font-semibold hover:underline decoration-2 underline-offset-4 ml-1" href="#">Login</a>
+</p>
+</footer>
+</div>
+<!-- Background Decoration for Desktop -->
+<div class="hidden lg:block fixed bottom-10 right-10 opacity-20 rotate-12">
+<span class="material-symbols-outlined text-[200px] text-primary select-none">pets</span>
+</div>
+<div class="hidden lg:block fixed top-10 left-10 opacity-20 -rotate-12">
+<span class="material-symbols-outlined text-[150px] text-primary select-none">pets</span>
+</div>
+</body></html>

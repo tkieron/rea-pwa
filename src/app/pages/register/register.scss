@@ -1,0 +1,133 @@
+:host {
+  display: block;
+}
+
+.register-page {
+  --primary: #13ec13;
+  --bg-dark: #102210;
+  --text-main: #eef5ee;
+  --text-muted: #a0b2a0;
+  --field-bg: rgba(12, 27, 12, 0.65);
+  --field-border: rgba(19, 236, 19, 0.2);
+
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(circle at 8% 12%, rgba(19, 236, 19, 0.15), transparent 35%),
+    radial-gradient(circle at 85% 88%, rgba(19, 236, 19, 0.08), transparent 40%),
+    var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(19, 236, 19, 0.16) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.2;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 2.25rem 1.25rem 1.5rem;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.icon-wrap {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 0.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(19, 236, 19, 0.18);
+  border: 1px solid rgba(19, 236, 19, 0.38);
+  box-shadow: 0 0 22px rgba(19, 236, 19, 0.22);
+  font-size: 2rem;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.brand p {
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+}
+
+.form {
+  display: grid;
+  gap: 0.5rem;
+  border-radius: 14px;
+  padding: 1.1rem;
+  border: 1px solid rgba(19, 236, 19, 0.12);
+  background: rgba(16, 34, 16, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+.form label {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form input {
+  height: 50px;
+  border-radius: 10px;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  color: var(--text-main);
+  padding: 0 0.8rem;
+  font: inherit;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.primary-btn {
+  margin-top: 0.8rem;
+  height: 52px;
+  border: 0;
+  border-radius: 11px;
+  font: inherit;
+  font-weight: 800;
+  background: var(--primary);
+  color: #102210;
+  cursor: pointer;
+}
+
+footer {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+footer a {
+  margin-left: 0.25rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+@media (max-width: 420px) {
+  .content {
+    padding: 1.5rem 0.75rem 1rem;
+  }
+
+  .form {
+    padding: 0.9rem;
+  }
+}

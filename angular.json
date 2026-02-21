@@ -27,7 +27,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+	     "./node_modules/leaflet/dist/leaflet.css"
             ]
           },
           "configurations": {
@@ -44,7 +45,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
@@ -81,11 +83,15 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+	      "./node_modules/leaflet/dist/leaflet.css"
             ]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "814d496d-676b-4ed8-bef7-72aa75656410"
   }
 }

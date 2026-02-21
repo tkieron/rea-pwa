@@ -1,0 +1,41 @@
+<main class="register-page">
+  <div class="bg-layer"></div>
+
+  <section class="content">
+    <header class="brand">
+      <div class="icon-wrap">
+        <span>🐾</span>
+      </div>
+      <h1>Join the Pack</h1>
+      <p>Create an account to start tracking your furry friends</p>
+    </header>
+
+    <form class="form">
+      <label for="fullName">Full Name</label>
+      <input id="fullName" name="fullName" type="text" placeholder="John Doe" />
+
+      <label for="email">Email Address</label>
+      <input id="email" name="email" type="email" placeholder="john@example.com" />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="••••••••" />
+
+      <label for="confirmPassword">Confirm Password</label>
+      <input
+        id="confirmPassword"
+        name="confirmPassword"
+        type="password"
+        placeholder="••••••••"
+      />
+
+      <button type="button" class="primary-btn">Register</button>
+    </form>
+
+    <footer>
+      <p>
+        Already have an account?
+        <a routerLink="/login">Login</a>
+      </p>
+    </footer>
+  </section>
+</main>
