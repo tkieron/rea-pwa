@@ -10,25 +10,69 @@
       <p>Create an account to start tracking your furry friends</p>
     </header>
 
-    <form class="form">
-      <label for="fullName">Full Name</label>
-      <input id="fullName" name="fullName" type="text" placeholder="John Doe" />
+    <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <label for="name">Full Name</label>
+      <input id="name" formControlName="name" type="text" placeholder="John Doe" />
+      @if (isInvalid('name')) {
+        <p class="field-error">Name: 2-120 znakow.</p>
+      }
 
       <label for="email">Email Address</label>
-      <input id="email" name="email" type="email" placeholder="john@example.com" />
+      <input id="email" formControlName="email" type="email" placeholder="john@example.com" />
+      @if (isInvalid('email')) {
+        <p class="field-error">Podaj poprawny adres e-mail.</p>
+      }
+
+      <label for="login">Login</label>
+      <input id="login" formControlName="login" type="text" placeholder="john_doe" />
+      @if (isInvalid('login')) {
+        <p class="field-error">Login: 3-100 znakow.</p>
+      }
+
+      <label for="confirmLogin">Confirm Login</label>
+      <input
+        id="confirmLogin"
+        formControlName="confirmLogin"
+        type="text"
+        placeholder="Repeat login"
+      />
+      @if (isInvalid('confirmLogin')) {
+        <p class="field-error">Potwierdzenie loginu: 3-100 znakow.</p>
+      }
+      @if (hasGroupError('loginMismatch')) {
+        <p class="field-error">Login i confirmLogin musza byc identyczne.</p>
+      }
 
       <label for="password">Password</label>
-      <input id="password" name="password" type="password" placeholder="••••••••" />
+      <input id="password" formControlName="password" type="password" placeholder="••••••••" />
+      @if (isInvalid('password')) {
+        <p class="field-error">Haslo: minimum 8 znakow.</p>
+      }
 
       <label for="confirmPassword">Confirm Password</label>
       <input
         id="confirmPassword"
-        name="confirmPassword"
+        formControlName="confirmPassword"
         type="password"
         placeholder="••••••••"
       />
+      @if (isInvalid('confirmPassword')) {
+        <p class="field-error">Potwierdzenie hasla: minimum 8 znakow.</p>
+      }
+      @if (hasGroupError('passwordMismatch')) {
+        <p class="field-error">Password i confirmPassword musza byc identyczne.</p>
+      }
 
-      <button type="button" class="primary-btn">Register</button>
+      @if (submitError()) {
+        <p class="submit-error">{{ submitError() }}</p>
+      }
+      @if (submitSuccess()) {
+        <p class="submit-success">{{ submitSuccess() }}</p>
+      }
+
+      <button type="submit" class="primary-btn" [disabled]="submitting()">
+        {{ submitting() ? 'Registering...' : 'Register' }}
+      </button>
     </form>
 
     <footer>

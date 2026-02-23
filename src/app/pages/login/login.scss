@@ -138,6 +138,18 @@
   box-shadow: 0 0 0 1px var(--primary);
 }
 
+.form input.ng-invalid.ng-touched {
+  border-color: #ff7b7b;
+  box-shadow: 0 0 0 1px rgba(255, 123, 123, 0.35);
+}
+
+.field-error,
+.submit-error {
+  margin: -0.15rem 0 0.1rem;
+  font-size: 0.78rem;
+  color: #ff9a9a;
+}
+
 .password-row {
   margin-top: 0.35rem;
   display: flex;
@@ -166,6 +178,11 @@
 
 .primary-btn:hover {
   filter: brightness(0.95);
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .divider {
