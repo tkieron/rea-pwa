@@ -1,0 +1,92 @@
+<main class="pet-edit">
+  <header class="topbar">
+    <div class="left">
+      <button type="button" aria-label="Back">&#8592;</button>
+      <h1>Edit Pet Profile</h1>
+    </div>
+    <button type="button" class="confirm" aria-label="Confirm">&#10003;</button>
+  </header>
+
+  <section class="content">
+    <section class="photo-section">
+      <div class="photo-wrap">
+        <div class="photo">
+          <img src="https://picsum.photos/seed/pet-edit/240/240" alt="Pet photo" />
+        </div>
+        <button type="button" class="camera-btn" aria-label="Change photo">📷</button>
+      </div>
+      <p>Change Photo</p>
+    </section>
+
+    <section class="form">
+      <div class="field">
+        <label>Pet Name</label>
+        <input type="text" value="Cooper" placeholder="Enter pet name" />
+      </div>
+
+      <div class="field">
+        <label>Breed</label>
+        <div class="select-wrap">
+          <select>
+            <option selected>Golden Retriever</option>
+            <option>Labrador</option>
+            <option>Beagle</option>
+            <option>Poodle</option>
+            <option>Other</option>
+          </select>
+          <span>▾</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Gender</label>
+        <div class="gender-toggle">
+          <button type="button" class="active">Male</button>
+          <button type="button">Female</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Date of Birth</label>
+        <div class="readonly-input">
+          <input type="text" value="May 12, 2021" readonly />
+          <span>📅</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="device-card">
+      <h2>Device Management</h2>
+
+      <div class="inner">
+        <div class="field compact">
+          <label>Assigned Tracker</label>
+          <div class="select-wrap">
+            <select>
+              <option selected>Tracker #TRK-9902 (Active)</option>
+              <option>Tracker #TRK-1105</option>
+              <option>Unassigned</option>
+            </select>
+            <span>▾</span>
+          </div>
+        </div>
+
+        <div class="info">
+          <span>i</span>
+          <p>
+            A tracker can be assigned to only one pet at a time. Assigning this tracker to Cooper
+            will unbind it from any other pet.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="danger-zone">
+      <button type="button" class="danger-btn">Remove Pet Profile</button>
+    </section>
+  </section>
+
+  <footer class="footer-actions">
+    <button type="button" class="save-btn">Save Changes</button>
+  </footer>
+</main>

@@ -1,0 +1,27 @@
+# Replace example.com with your domain (or use :80/:443 locally)
+example.com {
+  root * /var/www/rea-pwa
+
+  # Compression
+  encode zstd gzip
+
+  # API proxy (frontend calls /api/*)
+  handle_path /api/* {
+    reverse_proxy 127.0.0.1:8080
+  }
+
+  # PWA update-sensitive files
+  @pwa_nocache path /ngsw-worker.js /ngsw.json
+  header @pwa_nocache Cache-Control "no-cache, no-store, must-revalidate"
+
+  @manifest path /manifest.webmanifest
+  header @manifest Cache-Control "public, max-age=3600"
+
+  # Hashed/static assets
+  @assets path_regexp assets \.(js|css|woff2|png|jpg|jpeg|gif|svg|ico)$
+  header @assets Cache-Control "public, max-age=31536000, immutable"
+
+  # SPA fallback
+  try_files {path} {path}/ /index.html
+  file_server
+}
