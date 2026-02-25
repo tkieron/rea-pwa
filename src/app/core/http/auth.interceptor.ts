@@ -53,7 +53,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 403) {
-        authEvents.emit(403);
+        const authEndpoint = isAuthEndpoint(request.url);
+        if (!authEndpoint) {
+          authEvents.emit(403);
+        }
+
+        const protectedApiRequest =
+          isApiRequest(request.url, apiBaseUrl) && !authEndpoint && !skipInterceptor;
+
+        if (protectedApiRequest) {
+          session.clearSession();
+
+          if (router.url !== '/login') {
+            void router.navigateByUrl('/login');
+          }
+        }
+
         return throwError(() => error);
       }
 

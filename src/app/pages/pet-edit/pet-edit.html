@@ -1,92 +1,174 @@
 <main class="pet-edit">
   <header class="topbar">
     <div class="left">
-      <button type="button" aria-label="Back">&#8592;</button>
-      <h1>Edit Pet Profile</h1>
+      <button type="button" aria-label="Back" (click)="onBack()">&#8592;</button>
+      <h1>{{ isCreateMode() ? 'Add Pet Profile' : 'Edit Pet Profile' }}</h1>
     </div>
-    <button type="button" class="confirm" aria-label="Confirm">&#10003;</button>
+    <button
+      type="button"
+      class="confirm"
+      aria-label="Confirm"
+      (click)="onSave()"
+      [disabled]="!canSubmitSave()"
+    >
+      &#10003;
+    </button>
   </header>
 
-  <section class="content">
-    <section class="photo-section">
-      <div class="photo-wrap">
-        <div class="photo">
-          <img src="https://picsum.photos/seed/pet-edit/240/240" alt="Pet photo" />
-        </div>
-        <button type="button" class="camera-btn" aria-label="Change photo">📷</button>
-      </div>
-      <p>Change Photo</p>
+  @if (loading()) {
+    <section class="content">
+      <div class="panel-message">Ladowanie danych zwierzaka...</div>
     </section>
-
-    <section class="form">
-      <div class="field">
-        <label>Pet Name</label>
-        <input type="text" value="Cooper" placeholder="Enter pet name" />
-      </div>
-
-      <div class="field">
-        <label>Breed</label>
-        <div class="select-wrap">
-          <select>
-            <option selected>Golden Retriever</option>
-            <option>Labrador</option>
-            <option>Beagle</option>
-            <option>Poodle</option>
-            <option>Other</option>
-          </select>
-          <span>▾</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Gender</label>
-        <div class="gender-toggle">
-          <button type="button" class="active">Male</button>
-          <button type="button">Female</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Date of Birth</label>
-        <div class="readonly-input">
-          <input type="text" value="May 12, 2021" readonly />
-          <span>📅</span>
-        </div>
+  } @else if (loadError()) {
+    <section class="content">
+      <div class="panel-message error">
+        Nie udalo sie zaladowac widoku edycji. Sprobuj ponownie za chwile.
       </div>
     </section>
+  } @else {
+    <section class="content">
+      <section class="photo-section">
+        <div class="photo-wrap">
+          <div class="photo">
+            @if (photoSrc()) {
+              <img [src]="photoSrc()!" alt="Pet photo" />
+            } @else {
+              <div class="photo-placeholder">No Photo</div>
+            }
+          </div>
+          <input
+            #photoInput
+            type="file"
+            accept="image/*"
+            class="hidden-file-input"
+            (change)="onPhotoSelected($event)"
+          />
+          <button
+            type="button"
+            class="camera-btn"
+            aria-label="Change photo"
+            (click)="photoInput.click()"
+            [disabled]="uploadingPhoto() || isCreateMode()"
+          >
+            {{ uploadingPhoto() ? '…' : '📷' }}
+          </button>
+        </div>
+        <p>{{ isCreateMode() ? 'Photo after create' : 'Change Photo' }}</p>
+      </section>
 
-    <section class="device-card">
-      <h2>Device Management</h2>
+      <form class="form" [formGroup]="form" (ngSubmit)="onSave()">
+        <div class="field">
+          <label for="petName">Pet Name</label>
+          <input id="petName" type="text" placeholder="Enter pet name" formControlName="name" />
+          @if (isInvalid('name')) {
+            <p class="inline-error">Name jest wymagane (max 120 znakow).</p>
+          }
+        </div>
 
-      <div class="inner">
-        <div class="field compact">
-          <label>Assigned Tracker</label>
+        <div class="field">
+          <label for="breedId">Breed</label>
           <div class="select-wrap">
-            <select>
-              <option selected>Tracker #TRK-9902 (Active)</option>
-              <option>Tracker #TRK-1105</option>
-              <option>Unassigned</option>
+            <select id="breedId" formControlName="breedId">
+              <option [ngValue]="0" disabled>Select breed</option>
+              @for (breed of breeds(); track breed.id) {
+                <option [ngValue]="breed.id">{{ breed.name }}</option>
+              }
             </select>
             <span>▾</span>
           </div>
+          @if (isInvalid('breedId')) {
+            <p class="inline-error">Wybierz rase.</p>
+          }
         </div>
 
-        <div class="info">
-          <span>i</span>
-          <p>
-            A tracker can be assigned to only one pet at a time. Assigning this tracker to Cooper
-            will unbind it from any other pet.
-          </p>
+        <div class="field">
+          <label>Gender</label>
+          <div class="gender-toggle">
+            <button
+              type="button"
+              [class.active]="form.controls.gender.value === 'MALE'"
+              (click)="onSelectGender('MALE')"
+            >
+              Male
+            </button>
+            <button
+              type="button"
+              [class.active]="form.controls.gender.value === 'FEMALE'"
+              (click)="onSelectGender('FEMALE')"
+            >
+              Female
+            </button>
+          </div>
         </div>
-      </div>
+
+        <div class="field">
+          <label for="dateOfBirth">Date of Birth</label>
+          <div class="readonly-input">
+            <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+            <span>📅</span>
+          </div>
+        </div>
+
+        <section class="device-card">
+          <h2>Device Management</h2>
+
+          <div class="inner">
+            <div class="field compact">
+              <label for="assignedDeviceId">Assigned Tracker</label>
+              <div class="select-wrap">
+                <select
+                  id="assignedDeviceId"
+                  formControlName="assignedDeviceId"
+                  [disabled]="deviceSelectLocked()"
+                >
+                  <option [ngValue]="null">Unassigned</option>
+                  @for (device of devices(); track device.id) {
+                    <option [ngValue]="device.id">
+                      {{ deviceOptionLabel(device) }}
+                      @if (device.businessId) {
+                        ({{ device.businessId }})
+                      }
+                    </option>
+                  }
+                </select>
+                <span>▾</span>
+              </div>
+            </div>
+
+            <div class="info">
+              <span>i</span>
+              <p>
+                Tracker moze byc przypisany tylko do jednego zwierzaka naraz. Backend automatycznie
+                przepnie tracker miedzy Twoimi zwierzakami, ale odrzuci przypisanie do cudzego peta.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        @if (!isCreateMode()) {
+          <section class="danger-zone">
+            <button
+              type="button"
+              class="danger-btn"
+              (click)="onDelete()"
+              [disabled]="deleting() || saving()"
+            >
+              {{ deleting() ? 'Removing...' : 'Remove Pet Profile' }}
+            </button>
+          </section>
+        }
+      </form>
     </section>
 
-    <section class="danger-zone">
-      <button type="button" class="danger-btn">Remove Pet Profile</button>
-    </section>
-  </section>
-
-  <footer class="footer-actions">
-    <button type="button" class="save-btn">Save Changes</button>
-  </footer>
+    <footer class="footer-actions">
+      <button
+        type="button"
+        class="save-btn"
+        (click)="onSave()"
+        [disabled]="!canSubmitSave()"
+      >
+        {{ saving() ? 'Saving...' : (isCreateMode() ? 'Create Pet' : 'Save Changes') }}
+      </button>
+    </footer>
+  }
 </main>

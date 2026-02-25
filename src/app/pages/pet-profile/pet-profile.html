@@ -1,87 +1,146 @@
 <main class="pet-profile">
   <header class="topbar">
-    <button type="button" aria-label="Back">&#8592;</button>
+    <button type="button" aria-label="Back" (click)="onBack()">&#8592;</button>
     <h1>Pet Profile</h1>
-    <button type="button" aria-label="Menu">&#8942;</button>
+    <a
+      class="top-link-btn"
+      [routerLink]="pet() ? ['/pet-edit', pet()!.id] : ['/pets']"
+      aria-label="Edit"
+      >✎</a
+    >
   </header>
 
-  <section class="content">
-    <article class="hero">
-      <div class="avatar-wrap">
-        <img src="https://picsum.photos/seed/luna-profile/220/220" alt="Luna" />
-        <span class="badge">✓</span>
-      </div>
-      <h2>Luna</h2>
-      <p>Golden Retriever</p>
-      <div class="chips">
-        <span>2 Years</span>
-        <span>Female</span>
-      </div>
-    </article>
-
-    <article class="card">
-      <div class="card-title">
-        <h3>Activity Stats</h3>
-        <span>Today</span>
-      </div>
-      <div class="progress">
-        <p>Steps <b>8,432 / 10,000</b></p>
-        <div><span style="width: 84%"></span></div>
-      </div>
-      <div class="progress">
-        <p>Active Minutes <b>45 / 60 min</b></p>
-        <div><span style="width: 75%"></span></div>
-      </div>
-      <div class="progress">
-        <p>Calories Burned <b>320 kcal</b></p>
-        <div><span style="width: 50%"></span></div>
-      </div>
-    </article>
-
-    <article class="health">
-      <h3>Health &amp; Safety</h3>
-      <div class="health-grid">
-        <button type="button">Safe Zones</button>
-        <button type="button">Medical</button>
-        <button type="button">Vaccines</button>
-      </div>
-    </article>
-
-    <article class="card">
-      <h3>Tracker Settings</h3>
-      <div class="row">
-        <div>
-          <strong>Battery Status</strong>
-          <p>Device is charging</p>
+  @if (loading()) {
+    <section class="content">
+      <div class="state-card">Ladowanie profilu zwierzaka...</div>
+    </section>
+  } @else if (loadError()) {
+    <section class="content">
+      <div class="state-card error">Nie udalo sie zaladowac profilu. Sprobuj ponownie.</div>
+    </section>
+  } @else if (pet(); as pet) {
+    <section class="content">
+      <article class="hero">
+        <div class="avatar-wrap">
+          @if (photoSrc(); as src) {
+            <img [src]="src" [alt]="pet.name" />
+          } @else {
+            <div class="avatar-placeholder">{{ pet.name.slice(0, 1).toUpperCase() }}</div>
+          }
+          <span class="badge">✓</span>
         </div>
-        <span class="value">84%</span>
-      </div>
-      <div class="row">
-        <div>
-          <strong>Device ID</strong>
-          <p>Active since May 2023</p>
+        <h2>{{ pet.name }}</h2>
+        <p>{{ pet.breed.name }}</p>
+        <div class="chips">
+          <span>{{ ageLabel() }}</span>
+          <span>{{ genderLabel() }}</span>
         </div>
-        <span class="mono">TRK-9902-LX</span>
-      </div>
-      <div class="row">
-        <div>
-          <strong>Live Tracking</strong>
-          <p>Real-time GPS updates</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" checked />
-          <span></span>
-        </label>
-      </div>
-    </article>
+      </article>
 
-    <button type="button" class="edit-btn">Edit Profile</button>
-  </section>
+      <article class="card">
+        <div class="card-title">
+          <h3>Device Status</h3>
+          <span
+            class="freshness-badge"
+            [class]="attributesFreshnessClass()"
+            [title]="attributesFreshnessTooltip()"
+          >
+            {{ attributesFreshnessText() }}
+          </span>
+        </div>
+
+        <div class="progress">
+          <p>Battery <b>{{ batteryLabel() }}</b></p>
+          <div>
+            <span [style.width.%]="deviceInfo()?.batteryPercent ?? 0"></span>
+          </div>
+        </div>
+
+        <div class="rows">
+          <div class="row">
+            <div>
+              <strong>Tracker</strong>
+              <p>{{ deviceDisplayName() }}</p>
+            </div>
+            <span class="mono">{{ deviceBusinessId() }}</span>
+          </div>
+
+          <div class="row">
+            <div>
+              <strong>Connectivity</strong>
+              <p>
+                {{ deviceInfo()?.connectivityStatus || 'NO_DEVICE' }} /
+                {{ deviceInfo()?.locationStatus || 'NO_POSITION' }}
+              </p>
+            </div>
+            <span class="value">{{
+              deviceInfo()?.sensorLive || deviceInfo()?.locationLive ? 'LIVE' : 'OFFLINE'
+            }}</span>
+          </div>
+
+          <div class="row">
+            <div>
+              <strong>Charging</strong>
+              <p>{{ chargingLabel() }}</p>
+            </div>
+            <span class="value">{{ liveTrackingEnabled() ? 'Tracking ON' : 'Tracking OFF' }}</span>
+          </div>
+
+          <div class="row">
+            <div>
+              <strong>Last Location</strong>
+              <p>{{ locationLabel() }}</p>
+            </div>
+            <span class="mono">{{ speedLabel() }}</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="health">
+        <h3>Health &amp; Safety</h3>
+        <div class="health-grid">
+          <button type="button">Safe Zones</button>
+          <button type="button">Medical</button>
+          <button type="button">Vaccines</button>
+        </div>
+        <p class="mock-note">Mock section for now (no backend contracts wired yet).</p>
+      </article>
+
+      <article class="card">
+        <h3>Telemetry Snapshot</h3>
+        <div class="rows">
+          <div class="row">
+            <div>
+              <strong>Motion</strong>
+              <p>Sensor movement flag</p>
+            </div>
+            <span class="value">{{ deviceInfo()?.motion == null ? 'N/A' : (deviceInfo()?.motion ? 'YES' : 'NO') }}</span>
+          </div>
+          <div class="row">
+            <div>
+              <strong>Sat / RSSI</strong>
+              <p>Signal and satellites</p>
+            </div>
+            <span class="mono">{{ deviceInfo()?.sat ?? 'N/A' }} / {{ deviceInfo()?.rssi ?? 'N/A' }}</span>
+          </div>
+          <div class="row">
+            <div>
+              <strong>Distance</strong>
+              <p>Session / total</p>
+            </div>
+            <span class="mono">{{ deviceInfo()?.distance ?? 'N/A' }} / {{ deviceInfo()?.totalDistance ?? 'N/A' }}</span>
+          </div>
+        </div>
+      </article>
+
+      <a class="edit-btn" [routerLink]="['/pet-edit', pet.id]">Edit Profile</a>
+    </section>
+  }
 
   <nav class="bottom-nav">
-    <a href="#">Map</a>
-    <a href="#">Pets</a>
-    <a href="#">Activity</a>
-    <a href="#" class="active">Profile</a>
+    <a routerLink="/main-view-map">Map</a>
+    <a routerLink="/pets">Pets</a>
+    <a routerLink="/pets">Activity</a>
+    <a routerLink="/pets" class="active">Profile</a>
   </nav>
 </main>

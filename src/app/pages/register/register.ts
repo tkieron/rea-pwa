@@ -9,8 +9,8 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService, RegisterRequestDto } from '../../services/auth';
+import { ApiFeedbackService } from '../../services/api-feedback';
 
 function fieldsMatchValidator(
   sourceField: string,
@@ -39,10 +39,9 @@ function fieldsMatchValidator(
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly apiFeedback = inject(ApiFeedbackService);
 
   readonly submitting = signal(false);
-  readonly submitError = signal<string | null>(null);
-  readonly submitSuccess = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group(
     {
@@ -65,9 +64,6 @@ export class RegisterPage {
   );
 
   onSubmit(): void {
-    this.submitError.set(null);
-    this.submitSuccess.set(null);
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -81,7 +77,10 @@ export class RegisterPage {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
-          this.submitSuccess.set('Rejestracja wysłana poprawnie.');
+          this.apiFeedback.showSuccess(
+            'Rejestracja wyslana',
+            'Konto zostalo utworzone lub zgloszenie zostalo przyjete.',
+          );
           this.form.reset({
             name: '',
             email: '',
@@ -92,7 +91,10 @@ export class RegisterPage {
           });
         },
         error: (error: unknown) => {
-          this.submitError.set(this.extractErrorMessage(error));
+          this.apiFeedback.showError(error, {
+            title: 'Rejestracja nieudana',
+            fallbackMessage: 'Nie udalo sie zarejestrowac konta.',
+          });
         },
       });
   }
@@ -104,24 +106,5 @@ export class RegisterPage {
 
   hasGroupError(errorKey: 'loginMismatch' | 'passwordMismatch'): boolean {
     return Boolean(this.form.errors?.[errorKey]) && (this.form.touched || this.form.dirty);
-  }
-
-  private extractErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const apiMessage =
-        (typeof error.error === 'string' && error.error) ||
-        (typeof error.error?.message === 'string' && error.error.message) ||
-        (typeof error.error?.error === 'string' && error.error.error);
-
-      if (apiMessage) {
-        return apiMessage;
-      }
-
-      if (error.status === 0) {
-        return 'Brak połączenia z API.';
-      }
-    }
-
-    return 'Nie udało się zarejestrować konta.';
   }
 }

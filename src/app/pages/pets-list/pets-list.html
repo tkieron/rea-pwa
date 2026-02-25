@@ -1,0 +1,84 @@
+<main class="pets-list-page">
+  <header class="topbar">
+    <div class="title-wrap">
+      <span class="icon">🐾</span>
+      <h1>My Pets</h1>
+    </div>
+    <a routerLink="/main-view-map" class="profile-btn" aria-label="Map">🗺️</a>
+  </header>
+
+  <section class="content">
+    <div class="chips">
+      <span class="chip chip-active">All Pets ({{ pets().length }})</span>
+      <span class="chip">Assigned: {{ assignedCount() }}</span>
+      <span class="chip">Devices: {{ devicesCount() ?? '…' }}</span>
+    </div>
+
+    @if (loading()) {
+      <div class="state-card">Ladowanie listy zwierzakow...</div>
+    } @else if (error()) {
+      <div class="state-card error">Nie udalo sie pobrac listy. Sprobuj ponownie za chwile.</div>
+    } @else if (pets().length === 0) {
+      <div class="state-card empty">
+        <h2>Brak zwierzakow</h2>
+        <p>Po dodaniu pierwszego peta pojawi sie tutaj lista Twoich profili.</p>
+      </div>
+    } @else {
+      <div class="pets-grid">
+        @for (pet of pets(); track trackPet($index, pet)) {
+          <article class="pet-card">
+            <div class="pet-card-main">
+              <div class="avatar-wrap">
+                @if (photoSrc(pet); as src) {
+                  <img [src]="src" [alt]="pet.name" class="avatar" />
+                } @else {
+                  <div class="avatar placeholder">{{ pet.name.slice(0, 1).toUpperCase() }}</div>
+                }
+                <span class="status-pill">
+                  {{ pet.assignedDevice ? 'TRACKED' : 'NO DEVICE' }}
+                </span>
+              </div>
+
+              <div class="pet-info">
+                <div class="pet-head">
+                  <div>
+                    <h2>{{ pet.name }}</h2>
+                    <p>{{ pet.breed.name || 'Unknown breed' }}</p>
+                  </div>
+                  <span class="species">{{ speciesLabel(pet) }}</span>
+                </div>
+
+                <div class="meta">
+                  <span>{{ pet.gender }}</span>
+                  <span>•</span>
+                  <span>{{ pet.dateOfBirth || 'DOB not set' }}</span>
+                </div>
+
+                <div class="device-line">
+                  @if (pet.assignedDevice; as device) {
+                    <span>Tracker: {{ device.name || device.businessId || ('#' + device.id) }}</span>
+                  } @else {
+                    <span>No tracker assigned</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <a [routerLink]="['/pet-profile', pet.id]" class="btn ghost">Profile</a>
+              <a [routerLink]="['/pet-edit', pet.id]" class="btn primary">Edit</a>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <a class="fab" routerLink="/pet-add" aria-label="Add pet">+</a>
+
+  <nav class="bottom-nav">
+    <a routerLink="/pets" class="active">Pets</a>
+    <a routerLink="/main-view-map">Map</a>
+    <a [routerLink]="pets().length ? ['/pet-profile', pets()[0].id] : ['/pets']">Profile</a>
+  </nav>
+</main>

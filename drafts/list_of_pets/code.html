@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Pets - Pet Tracker</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec13",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102210",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav {
+            color: #13ec13 !important;
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(19, 236, 19, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">potted_plant</span>
+<h1 class="text-xl font-bold tracking-tight">My Pets</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 p-4 space-y-4 max-w-2xl mx-auto w-full pb-24">
+<!-- Filter Tabs -->
+<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="px-5 py-2 bg-primary text-background-dark rounded-full text-sm font-semibold whitespace-nowrap">All Pets</button>
+<button class="px-5 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold whitespace-nowrap">Nearby</button>
+<button class="px-5 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold whitespace-nowrap">Safe Zones</button>
+<button class="px-5 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold whitespace-nowrap">Inactive</button>
+</div>
+<!-- Pet Card: Luna -->
+<div class="bg-white dark:bg-primary/5 rounded-xl p-4 border border-slate-200 dark:border-primary/10 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex gap-4">
+<!-- Avatar -->
+<div class="relative flex-shrink-0">
+<div class="w-20 h-20 rounded-full border-2 border-primary p-1">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Portrait of a friendly Golden Retriever named Luna" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB1kNSnqqlC2uwkvS9FQoe4R74FRKtHiI4cnWWhSbdTYjteZIFfaVmGXQe4fkW0oEMvgcrB-0oaB4JQvORXygcfRvtzd_ADxZr6DnX7rSSzjxXgyoZWW7yuiTfoPvUZn_jc8Y3TBgP4M25O0qJcFl6ygT9RMlEW14qatvLMtFzk4zSn4JeFyHNaWJzdMLm9HTBl90t1SxUDP-zT3MfH0I85fxnKWlT5wRwpsfhrOf7nDGceahIk7I12NFvTm_drBWfcNhvqiYXCHKSg')"></div>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-primary text-background-dark text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-background-dark">
+                        LIVE
+                    </div>
+</div>
+<!-- Info -->
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-lg font-bold">Luna</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400">Golden Retriever</p>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm">battery_5_bar</span>
+<span class="text-xs font-bold">85%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-medium text-primary">In Safe Zone • Home</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-slate-400 mt-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="truncate">123 Pinecrest Dr, Oakwood Valley</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pet Card: Buddy -->
+<div class="bg-white dark:bg-primary/5 rounded-xl p-4 border border-slate-200 dark:border-primary/10 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex gap-4">
+<div class="relative flex-shrink-0">
+<div class="w-20 h-20 rounded-full border-2 border-slate-300 dark:border-primary/20 p-1">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Small energetic beagle dog named Buddy" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAr2IDUCMAnn7pthH1rPp10Pxdmn46N0xZfnyyWVSVxDNjB1pSfKbQD82FrmL33qilqpOGuA7LME78wUfmf5vQNXaKAUCWhplAI1b_sjasjbytgC06Xjxpxqqsurs6FyuN101Pd1bZLwQrlN0PYUUClr7-sX1feB1g5n34JylbpvNLUH0Km3TZD9ngNOa_7IT6qkI_rk9yVPwoptJ7hEcP0Ro_H9FEs5UnDTHxAgTlVuEh4HszOD5wcKGjZh2G0etSLQfsN6mPnlNPo')"></div>
+</div>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-lg font-bold">Buddy</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400">Beagle</p>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm">battery_full</span>
+<span class="text-xs font-bold">92%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="flex h-2 w-2 rounded-full bg-primary"></span>
+<span class="text-xs font-medium text-slate-200">Active • Walking</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-slate-400 mt-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="truncate">Central Park West Side</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pet Card: Max -->
+<div class="bg-white dark:bg-primary/5 rounded-xl p-4 border border-slate-200 dark:border-primary/10 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex gap-4">
+<div class="relative flex-shrink-0">
+<div class="w-20 h-20 rounded-full border-2 border-slate-300 dark:border-primary/20 p-1">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Sleek black cat named Max" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVd9EBNyi3IWTGBD6jmLzpSnbjt24QM7wFN_GmTJE_7V1rGZE8HPzRyerJ63bYMPQxxLJJggeXpbUOjgy4slumsQ438Xl7wz4Yntmy9J8VC3LZHYWYwfu6DZV-yENnueGeV4rvCbaUP9gYOp4aqWXpJyuRg6xDrBJGU9ZjD_Hs62WXy7aaFwiyu_PLpg9dv2xVJI9ghlg12Qemt0jxQARI3TfwbZfoKLYIy-VkV2Z2Ne2SxYfU7j73zP9k9PvShA6pL6hnyYnVup38')"></div>
+</div>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-lg font-bold">Max</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400">Siamese Cat</p>
+</div>
+<div class="flex items-center gap-1 text-amber-500">
+<span class="material-symbols-outlined text-sm">battery_2_bar</span>
+<span class="text-xs font-bold">14%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="flex h-2 w-2 rounded-full bg-slate-400"></span>
+<span class="text-xs font-medium text-slate-400">Resting • Last seen 2h ago</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-slate-400 mt-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="truncate">Sunnyside Backyard</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Mini Map Preview -->
+<div class="mt-6">
+<h3 class="text-sm font-semibold mb-3 px-2 flex justify-between">
+<span>Quick View Map</span>
+<span class="text-primary text-xs cursor-pointer">View All</span>
+</h3>
+<div class="w-full h-40 rounded-xl bg-slate-800 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center opacity-60" data-alt="Simple dark-themed street map preview" data-location="New York City" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBcJCjF9h__ZBTAWpUSbf58yVCKLwVdedbi7fo_UwHhaL_hfbTgyffHQU6I6zW4_aGowC5eFP0wN5d3Q8xkI1IchxNYfF844pw6K-YUSk4bqTNDQ8qOjs1eHFk9leK904zr6nf1iOr9LudXNCLq7iw5g9NJqJtn10-w-zaocrjoBXIaQqixPwGLhM8dUUeSyIZZRIl3XNxL3PpSMErneCbIryKUpMEtsxskQX3Dntyo0K5MnckaCi3M0JO5sKZybJRyXG3rQVoR6vEc')"></div>
+<!-- Mock Map Marker -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+<div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center neon-glow">
+<div class="w-4 h-4 bg-primary rounded-full border-2 border-background-dark"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-background-dark rounded-full shadow-lg flex items-center justify-center neon-glow hover:scale-105 active:scale-95 transition-transform z-20">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-background-dark/95 backdrop-blur-lg border-t border-primary/10 px-4 py-2 flex items-center justify-around z-30">
+<a class="flex flex-col items-center gap-1 active-nav p-2" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1">pets</span>
+<span class="text-[10px] font-bold">Pets</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">map</span>
+<span class="text-[10px] font-medium">Map</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">history</span>
+<span class="text-[10px] font-medium">History</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</nav>
+</body></html>

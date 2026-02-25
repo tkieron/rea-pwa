@@ -18,14 +18,10 @@ export const anonymousOnlyGuard: CanActivateFn = () => {
 
 export const authRequiredMatchGuard: CanMatchFn = () => {
   const authSession = inject(AuthSessionService);
-  const router = inject(Router);
-
-  return authSession.hasActiveSession() ? true : router.createUrlTree(['/login']);
+  return authSession.hasActiveSession();
 };
 
 export const anonymousOnlyMatchGuard: CanMatchFn = () => {
   const authSession = inject(AuthSessionService);
-  const router = inject(Router);
-
-  return authSession.hasActiveSession() ? router.createUrlTree(['/main-view-map']) : true;
+  return !authSession.hasActiveSession();
 };

@@ -1,0 +1,16 @@
+<section class="toast-stack" aria-live="polite" aria-atomic="false">
+  @for (toast of toastService.items(); track toast.id) {
+    <article class="toast" [class]="'toast kind-' + toast.kind">
+      <div class="accent"></div>
+      <div class="body">
+        <h3>{{ toast.title }}</h3>
+        @if (toast.message) {
+          <p>{{ toast.message }}</p>
+        }
+      </div>
+      <button type="button" class="close-btn" (click)="dismiss(toast.id)" aria-label="Close">
+        ×
+      </button>
+    </article>
+  }
+</section>

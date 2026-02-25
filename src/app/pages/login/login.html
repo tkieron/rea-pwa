@@ -37,10 +37,6 @@
           <p class="field-error">Haslo: minimum 8 znakow.</p>
         }
 
-        @if (submitError()) {
-          <p class="submit-error">{{ submitError() }}</p>
-        }
-
         <button type="submit" class="primary-btn" [disabled]="submitting()">
           {{ submitting() ? 'Logging in...' : 'Login' }}
         </button>

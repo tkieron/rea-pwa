@@ -63,13 +63,6 @@
         <p class="field-error">Password i confirmPassword musza byc identyczne.</p>
       }
 
-      @if (submitError()) {
-        <p class="submit-error">{{ submitError() }}</p>
-      }
-      @if (submitSuccess()) {
-        <p class="submit-success">{{ submitSuccess() }}</p>
-      }
-
       <button type="submit" class="primary-btn" [disabled]="submitting()">
         {{ submitting() ? 'Registering...' : 'Register' }}
       </button>

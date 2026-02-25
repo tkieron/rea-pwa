@@ -194,6 +194,10 @@
   font-weight: 700;
 }
 
+.rows {
+  margin-top: 0.2rem;
+}
+
 .row {
   margin-top: 0.7rem;
   padding-top: 0.7rem;
@@ -274,6 +278,9 @@
   color: #102210;
   font: inherit;
   font-weight: 800;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
 }
 
 .bottom-nav {

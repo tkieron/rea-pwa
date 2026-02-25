@@ -1,0 +1,86 @@
+:host {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.toast-stack {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  left: 0.9rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.toast {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: 4px 1fr auto;
+  align-items: stretch;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(16, 34, 16, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  color: #eef5ee;
+}
+
+.accent {
+  background: #13ec13;
+}
+
+.body {
+  padding: 0.7rem 0.8rem;
+  min-width: 0;
+}
+
+.body h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.body p {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #b7c8b7;
+}
+
+.close-btn {
+  width: 40px;
+  border: 0;
+  background: transparent;
+  color: #b7c8b7;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #eef5ee;
+}
+
+.toast.kind-success .accent {
+  background: #22c55e;
+}
+
+.toast.kind-warning .accent {
+  background: #f59e0b;
+}
+
+.toast.kind-error .accent {
+  background: #ef4444;
+}
+
+.toast.kind-info .accent {
+  background: #13ec13;
+}
+
+@media (min-width: 640px) {
+  .toast-stack {
+    left: auto;
+    width: min(420px, calc(100vw - 1.8rem));
+  }
+}
