@@ -1,146 +1,190 @@
-<main class="pet-profile">
-  <header class="topbar">
-    <button type="button" aria-label="Back" (click)="onBack()">&#8592;</button>
+<div class="pet-profile-container">
+  <!-- Top Header Navigation -->
+  <header class="top-nav">
+    <button type="button" class="icon-btn" aria-label="Back" (click)="onBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
     <h1>Pet Profile</h1>
-    <a
-      class="top-link-btn"
-      [routerLink]="pet() ? ['/pet-edit', pet()!.id] : ['/pets']"
-      aria-label="Edit"
-      >✎</a
-    >
+    <button type="button" class="icon-btn" aria-label="More"
+      [routerLink]="pet() ? ['/pet-edit', pet()!.id] : ['/pets']">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
   </header>
 
-  @if (loading()) {
-    <section class="content">
-      <div class="state-card">Ladowanie profilu zwierzaka...</div>
-    </section>
-  } @else if (loadError()) {
-    <section class="content">
-      <div class="state-card error">Nie udalo sie zaladowac profilu. Sprobuj ponownie.</div>
-    </section>
-  } @else if (pet(); as pet) {
-    <section class="content">
-      <article class="hero">
-        <div class="avatar-wrap">
+  <main class="scroll-content">
+    @if (loading()) {
+    <div class="status-msg">Loading pet profile...</div>
+    } @else if (loadError()) {
+    <div class="status-msg text-error">Failed to load profile. Please try again.</div>
+    } @else if (pet(); as pet) {
+    <!-- Profile Hero Section -->
+    <section class="hero-section">
+      <div class="avatar-container">
+        <div class="avatar-ring">
           @if (photoSrc(); as src) {
-            <img [src]="src" [alt]="pet.name" />
+          <div class="avatar-img" [style.backgroundImage]="'url(' + src + ')'" [attr.aria-label]="pet.name"></div>
           } @else {
-            <div class="avatar-placeholder">{{ pet.name.slice(0, 1).toUpperCase() }}</div>
+          <div class="avatar-fallback">{{ pet.name.slice(0, 1).toUpperCase() }}</div>
           }
-          <span class="badge">✓</span>
         </div>
+        <div class="verified-badge">
+          <span class="material-symbols-outlined icon-verified">verified</span>
+        </div>
+      </div>
+
+      <div class="hero-text">
         <h2>{{ pet.name }}</h2>
-        <p>{{ pet.breed.name }}</p>
-        <div class="chips">
-          <span>{{ ageLabel() }}</span>
-          <span>{{ genderLabel() }}</span>
-        </div>
-      </article>
+        <p>{{ pet.breed.name || 'Unknown breed' }}</p>
+      </div>
 
-      <article class="card">
-        <div class="card-title">
-          <h3>Device Status</h3>
-          <span
-            class="freshness-badge"
-            [class]="attributesFreshnessClass()"
-            [title]="attributesFreshnessTooltip()"
-          >
-            {{ attributesFreshnessText() }}
-          </span>
-        </div>
-
-        <div class="progress">
-          <p>Battery <b>{{ batteryLabel() }}</b></p>
-          <div>
-            <span [style.width.%]="deviceInfo()?.batteryPercent ?? 0"></span>
-          </div>
-        </div>
-
-        <div class="rows">
-          <div class="row">
-            <div>
-              <strong>Tracker</strong>
-              <p>{{ deviceDisplayName() }}</p>
-            </div>
-            <span class="mono">{{ deviceBusinessId() }}</span>
-          </div>
-
-          <div class="row">
-            <div>
-              <strong>Connectivity</strong>
-              <p>
-                {{ deviceInfo()?.connectivityStatus || 'NO_DEVICE' }} /
-                {{ deviceInfo()?.locationStatus || 'NO_POSITION' }}
-              </p>
-            </div>
-            <span class="value">{{
-              deviceInfo()?.sensorLive || deviceInfo()?.locationLive ? 'LIVE' : 'OFFLINE'
-            }}</span>
-          </div>
-
-          <div class="row">
-            <div>
-              <strong>Charging</strong>
-              <p>{{ chargingLabel() }}</p>
-            </div>
-            <span class="value">{{ liveTrackingEnabled() ? 'Tracking ON' : 'Tracking OFF' }}</span>
-          </div>
-
-          <div class="row">
-            <div>
-              <strong>Last Location</strong>
-              <p>{{ locationLabel() }}</p>
-            </div>
-            <span class="mono">{{ speedLabel() }}</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="health">
-        <h3>Health &amp; Safety</h3>
-        <div class="health-grid">
-          <button type="button">Safe Zones</button>
-          <button type="button">Medical</button>
-          <button type="button">Vaccines</button>
-        </div>
-        <p class="mock-note">Mock section for now (no backend contracts wired yet).</p>
-      </article>
-
-      <article class="card">
-        <h3>Telemetry Snapshot</h3>
-        <div class="rows">
-          <div class="row">
-            <div>
-              <strong>Motion</strong>
-              <p>Sensor movement flag</p>
-            </div>
-            <span class="value">{{ deviceInfo()?.motion == null ? 'N/A' : (deviceInfo()?.motion ? 'YES' : 'NO') }}</span>
-          </div>
-          <div class="row">
-            <div>
-              <strong>Sat / RSSI</strong>
-              <p>Signal and satellites</p>
-            </div>
-            <span class="mono">{{ deviceInfo()?.sat ?? 'N/A' }} / {{ deviceInfo()?.rssi ?? 'N/A' }}</span>
-          </div>
-          <div class="row">
-            <div>
-              <strong>Distance</strong>
-              <p>Session / total</p>
-            </div>
-            <span class="mono">{{ deviceInfo()?.distance ?? 'N/A' }} / {{ deviceInfo()?.totalDistance ?? 'N/A' }}</span>
-          </div>
-        </div>
-      </article>
-
-      <a class="edit-btn" [routerLink]="['/pet-edit', pet.id]">Edit Profile</a>
+      <div class="hero-tags">
+        <span class="tag">{{ ageLabel() }}</span>
+        <span class="tag">{{ genderLabel() }}</span>
+      </div>
     </section>
-  }
 
+    <!-- Activity Stats Card -->
+    <section class="card-section">
+      <div class="card">
+        <div class="card-header">
+          <h3>Activity Stats</h3>
+          <span class="card-badge">Today</span>
+        </div>
+        <div class="stats-list">
+          <!-- Steps -->
+          <div class="stat-item">
+            <div class="stat-header">
+              <div class="stat-title">
+                <span class="material-symbols-outlined icon-primary">steps</span>
+                <span>Steps</span>
+              </div>
+              <div class="stat-value">8,432 <span class="text-muted">/ 10,000</span></div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 84%;"></div>
+            </div>
+          </div>
+          <!-- Active Minutes -->
+          <div class="stat-item">
+            <div class="stat-header">
+              <div class="stat-title">
+                <span class="material-symbols-outlined icon-primary">timer</span>
+                <span>Active Minutes</span>
+              </div>
+              <div class="stat-value">45 <span class="text-muted">/ 60 min</span></div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 75%;"></div>
+            </div>
+          </div>
+          <!-- Calories -->
+          <div class="stat-item">
+            <div class="stat-header">
+              <div class="stat-title">
+                <span class="material-symbols-outlined icon-primary">local_fire_department</span>
+                <span>Calories Burned</span>
+              </div>
+              <div class="stat-value">320 <span class="text-muted">kcal</span></div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 50%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Health & Safety Section -->
+    <section class="card-section">
+      <h3 class="section-title">Health & Safety</h3>
+      <div class="action-grid">
+        <button type="button" class="action-btn">
+          <span class="material-symbols-outlined icon-primary action-icon">security</span>
+          <span>Safe Zones</span>
+        </button>
+        <button type="button" class="action-btn">
+          <span class="material-symbols-outlined icon-primary action-icon">clinical_notes</span>
+          <span>Medical</span>
+        </button>
+        <button type="button" class="action-btn">
+          <span class="material-symbols-outlined icon-primary action-icon">vaccines</span>
+          <span>Vaccines</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Tracker Settings -->
+    <section class="card-section">
+      <div class="card">
+        <div class="card-header">
+          <h3>Tracker Settings</h3>
+        </div>
+        <div class="settings-list">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="material-symbols-outlined icon-primary">battery_5_bar</span>
+              <div>
+                <p class="setting-title">Battery Status</p>
+                <p class="setting-desc">{{ chargingLabel() }}</p>
+              </div>
+            </div>
+            <span class="setting-value text-primary font-bold">{{ batteryLabel() }}</span>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="material-symbols-outlined text-muted">fingerprint</span>
+              <div>
+                <p class="setting-title">Device ID</p>
+                <p class="setting-desc">{{ deviceDisplayName() }}</p>
+              </div>
+            </div>
+            <span class="setting-value font-mono text-muted">{{ deviceBusinessId() }}</span>
+          </div>
+          <div class="setting-item no-border">
+            <div class="setting-info">
+              <span class="material-symbols-outlined icon-primary">sensors</span>
+              <div>
+                <p class="setting-title">Live Tracking</p>
+                <p class="setting-desc">{{ liveTrackingEnabled() ? 'Real-time GPS updates' : 'Location updates disabled'
+                  }}</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [checked]="liveTrackingEnabled()" disabled />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Edit Profile Button -->
+    <div class="edit-action">
+      <button type="button" class="btn-primary" [routerLink]="['/pet-edit', pet.id]">
+        Edit Profile
+      </button>
+    </div>
+    }
+  </main>
+
+  <!-- Bottom Navigation Bar -->
   <nav class="bottom-nav">
-    <a routerLink="/main-view-map">Map</a>
-    <a routerLink="/pets">Pets</a>
-    <a routerLink="/pets">Activity</a>
-    <a routerLink="/pets" class="active">Profile</a>
+    <a routerLink="/main-view-map" routerLinkActive="active-nav" [routerLinkActiveOptions]="{exact: true}"
+      class="nav-item">
+      <span class="material-symbols-outlined">map</span>
+      <span>Map</span>
+    </a>
+    <a routerLink="/pets" routerLinkActive="active-nav" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <span class="material-symbols-outlined">pets</span>
+      <span>Pets</span>
+    </a>
+    <a routerLink="/activity" class="nav-item">
+      <span class="material-symbols-outlined">monitoring</span>
+      <span>Activity</span>
+    </a>
+    <a [routerLink]="pet() ? ['/pet-profile', pet()!.id] : ['/pets']" routerLinkActive="active-nav" class="nav-item">
+      <span class="material-symbols-outlined">person</span>
+      <span>Profile</span>
+    </a>
   </nav>
-</main>
+</div>

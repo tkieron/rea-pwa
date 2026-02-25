@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { finalize, of, switchMap } from 'rxjs';
 import { PetsService, PetResponseDto } from '../../services/pets';
 import { DevicesService, DeviceInfoResponseDto } from '../../services/devices';
@@ -8,7 +8,7 @@ import { ApiFeedbackService } from '../../services/api-feedback';
 @Component({
   selector: 'app-pet-profile-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './pet-profile.html',
   styleUrl: './pet-profile.scss',
 })

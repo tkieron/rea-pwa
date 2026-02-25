@@ -15,70 +15,85 @@
     </div>
 
     @if (loading()) {
-      <div class="state-card">Ladowanie listy zwierzakow...</div>
+    <div class="state-card">Ladowanie listy zwierzakow...</div>
     } @else if (error()) {
-      <div class="state-card error">Nie udalo sie pobrac listy. Sprobuj ponownie za chwile.</div>
+    <div class="state-card error">Nie udalo sie pobrac listy. Sprobuj ponownie za chwile.</div>
     } @else if (pets().length === 0) {
-      <div class="state-card empty">
-        <h2>Brak zwierzakow</h2>
-        <p>Po dodaniu pierwszego peta pojawi sie tutaj lista Twoich profili.</p>
-      </div>
+    <div class="state-card empty">
+      <h2>Brak zwierzakow</h2>
+      <p>Po dodaniu pierwszego peta pojawi sie tutaj lista Twoich profili.</p>
+    </div>
     } @else {
-      <div class="pets-grid">
-        @for (pet of pets(); track trackPet($index, pet)) {
-          <article class="pet-card">
-            <div class="pet-card-main">
-              <div class="avatar-wrap">
-                @if (photoSrc(pet); as src) {
-                  <img [src]="src" [alt]="pet.name" class="avatar" />
-                } @else {
-                  <div class="avatar placeholder">{{ pet.name.slice(0, 1).toUpperCase() }}</div>
-                }
-                <span class="status-pill">
-                  {{ pet.assignedDevice ? 'TRACKED' : 'NO DEVICE' }}
-                </span>
+    <div class="pets-grid">
+      @for (pet of pets(); track trackPet($index, pet)) {
+      <article class="pet-card">
+        <div class="pet-card-main">
+          <div class="avatar-wrap">
+            @if (photoSrc(pet); as src) {
+            <img [src]="src" [alt]="pet.name" class="avatar" />
+            } @else {
+            <div class="avatar placeholder">{{ pet.name.slice(0, 1).toUpperCase() }}</div>
+            }
+            <span class="status-pill">
+              {{ pet.assignedDevice ? 'TRACKED' : 'NO DEVICE' }}
+            </span>
+          </div>
+
+          <div class="pet-info">
+            <div class="pet-head">
+              <div>
+                <h2>{{ pet.name }}</h2>
+                <p>{{ pet.breed.name || 'Unknown breed' }}</p>
               </div>
-
-              <div class="pet-info">
-                <div class="pet-head">
-                  <div>
-                    <h2>{{ pet.name }}</h2>
-                    <p>{{ pet.breed.name || 'Unknown breed' }}</p>
-                  </div>
-                  <span class="species">{{ speciesLabel(pet) }}</span>
-                </div>
-
-                <div class="meta">
-                  <span>{{ pet.gender }}</span>
-                  <span>•</span>
-                  <span>{{ pet.dateOfBirth || 'DOB not set' }}</span>
-                </div>
-
-                <div class="device-line">
-                  @if (pet.assignedDevice; as device) {
-                    <span>Tracker: {{ device.name || device.businessId || ('#' + device.id) }}</span>
-                  } @else {
-                    <span>No tracker assigned</span>
-                  }
-                </div>
-              </div>
+              <span class="species">{{ speciesLabel(pet) }}</span>
             </div>
 
-            <div class="actions">
-              <a [routerLink]="['/pet-profile', pet.id]" class="btn ghost">Profile</a>
-              <a [routerLink]="['/pet-edit', pet.id]" class="btn primary">Edit</a>
+            <div class="meta">
+              <span>{{ pet.gender }}</span>
+              <span>•</span>
+              <span>{{ pet.dateOfBirth || 'DOB not set' }}</span>
             </div>
-          </article>
-        }
-      </div>
+
+            <div class="device-line">
+              @if (pet.assignedDevice; as device) {
+              <span>Tracker: {{ device.name || device.businessId || ('#' + device.id) }}</span>
+              } @else {
+              <span>No tracker assigned</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a [routerLink]="['/pet-profile', pet.id]" class="btn ghost">Profile</a>
+          <a [routerLink]="['/pet-edit', pet.id]" class="btn primary">Edit</a>
+        </div>
+      </article>
+      }
+    </div>
     }
   </section>
 
   <a class="fab" routerLink="/pet-add" aria-label="Add pet">+</a>
 
   <nav class="bottom-nav">
-    <a routerLink="/pets" class="active">Pets</a>
-    <a routerLink="/main-view-map">Map</a>
-    <a [routerLink]="pets().length ? ['/pet-profile', pets()[0].id] : ['/pets']">Profile</a>
+    <a routerLink="/main-view-map" routerLinkActive="active-nav" [routerLinkActiveOptions]="{exact: true}"
+      class="nav-item">
+      <span class="material-symbols-outlined">map</span>
+      <span>Map</span>
+    </a>
+    <a routerLink="/pets" routerLinkActive="active-nav" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <span class="material-symbols-outlined">pets</span>
+      <span>Pets</span>
+    </a>
+    <a routerLink="/activity" class="nav-item">
+      <span class="material-symbols-outlined">monitoring</span>
+      <span>Activity</span>
+    </a>
+    <a [routerLink]="pets().length ? ['/pet-profile', pets()[0].id] : ['/pets']" routerLinkActive="active-nav"
+      class="nav-item">
+      <span class="material-symbols-outlined">person</span>
+      <span>Profile</span>
+    </a>
   </nav>
 </main>
