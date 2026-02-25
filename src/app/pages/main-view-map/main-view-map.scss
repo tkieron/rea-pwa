@@ -25,13 +25,11 @@
   z-index: 0;
   background:
     linear-gradient(135deg, rgba(8, 20, 8, 0.55), rgba(8, 20, 8, 0.55)),
-    repeating-linear-gradient(
-      35deg,
+    repeating-linear-gradient(35deg,
       rgba(30, 62, 30, 0.5) 0,
       rgba(30, 62, 30, 0.5) 2px,
       rgba(18, 36, 18, 0.55) 2px,
-      rgba(18, 36, 18, 0.55) 14px
-    );
+      rgba(18, 36, 18, 0.55) 14px);
 }
 
 .map-canvas {
@@ -77,7 +75,7 @@
 .fab-stack {
   position: fixed;
   right: 0.9rem;
-  top: 6.4rem;
+  top: 4.8rem;
   display: grid;
   gap: 0.55rem;
   z-index: 9999;

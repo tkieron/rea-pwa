@@ -35,21 +35,22 @@
   </section>
 
   <div class="fab-stack">
-    <button type="button" class="fab-btn" (click)="recenterMap()" aria-label="Center on pet">◎</button>
-
     @if (!zoomPanelCollapsed()) {
-      <div class="zoom-widget" aria-label="Map zoom controls">
+      <div class="zoom-widget" aria-label="Map controls">
         <div class="zoom-widget-head">
-          <span class="zoom-widget-title">Zoom</span>
+          <span class="zoom-widget-title">Map</span>
           <button
             type="button"
             class="zoom-widget-toggle"
             (click)="collapseZoomPanel()"
-            aria-label="Hide zoom controls"
+            aria-label="Hide map controls"
           >
             ›
           </button>
         </div>
+
+        <button type="button" class="fab-btn zoom-btn" (click)="recenterMap()" aria-label="Center on pet">◎</button>
+        <div class="zoom-divider"></div>
 
         <button type="button" class="fab-btn zoom-btn" (click)="zoomMapIn()" aria-label="Zoom in">＋</button>
 
@@ -76,16 +77,19 @@
         <button type="button" class="fab-btn zoom-btn" (click)="zoomMapOut()" aria-label="Zoom out">－</button>
       </div>
     } @else {
-      <button
-        type="button"
-        class="zoom-widget-collapsed"
-        (click)="expandZoomPanel()"
-        aria-label="Show zoom controls"
-        title="Show zoom"
-      >
-        <span class="zoom-widget-collapsed-icon">＋</span>
-        <span class="zoom-widget-collapsed-arrow">‹</span>
-      </button>
+      <div class="zoom-widget-collapsed-container">
+        <button type="button" class="fab-btn" (click)="recenterMap()" aria-label="Center on pet">◎</button>
+        <button
+          type="button"
+          class="zoom-widget-collapsed"
+          (click)="expandZoomPanel()"
+          aria-label="Show map controls"
+          title="Show zoom"
+        >
+          <span class="zoom-widget-collapsed-icon">＋</span>
+          <span class="zoom-widget-collapsed-arrow">‹</span>
+        </button>
+      </div>
     }
   </div>
 

@@ -389,6 +389,12 @@
   padding: 0.35rem 0;
 }
 
+.main-view .zoom-widget-collapsed-container {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+}
+
 .main-view .zoom-widget-collapsed-icon {
   font-size: 1.15rem;
   line-height: 1;
@@ -408,10 +414,17 @@
   line-height: 1;
 }
 
+.main-view .zoom-divider {
+  width: 60%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.1rem 0;
+}
+
 .main-view .zoom-track {
   position: relative;
   width: 52px;
-  height: 154px;
+  height: 100px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
