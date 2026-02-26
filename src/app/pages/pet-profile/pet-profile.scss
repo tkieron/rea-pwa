@@ -415,3 +415,29 @@
 .btn-primary:active {
   transform: scale(0.98);
 }
+
+.mock-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  filter: grayscale(80%);
+  position: relative;
+}
+
+.mock-disabled::after {
+  content: 'Coming Soon';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--surface);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 10;
+  white-space: nowrap;
+}

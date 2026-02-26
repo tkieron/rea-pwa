@@ -108,30 +108,30 @@
 
 .pets-grid {
   display: grid;
-  gap: 0.8rem;
+  gap: 1.25rem;
 }
 
 .pet-card {
-  border-radius: 14px;
+  border-radius: 18px;
   border: 1px solid rgba(19, 236, 19, 0.12);
   background: rgba(19, 236, 19, 0.04);
-  padding: 0.8rem;
+  padding: 1.25rem;
 }
 
 .pet-card-main {
   display: flex;
-  gap: 0.8rem;
+  gap: 1.25rem;
 }
 
 .avatar-wrap {
-  width: 84px;
+  width: 110px;
   position: relative;
   flex-shrink: 0;
 }
 
 .avatar {
-  width: 84px;
-  height: 84px;
+  width: 110px;
+  height: 110px;
   border-radius: 999px;
   object-fit: cover;
   border: 2px solid rgba(19, 236, 19, 0.5);
@@ -141,7 +141,7 @@
   display: grid;
   place-items: center;
   font-weight: 800;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   background: rgba(19, 236, 19, 0.12);
   color: var(--primary);
 }
@@ -175,32 +175,32 @@
 
 .pet-head h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.3rem;
 }
 
 .pet-head p {
-  margin: 0.15rem 0 0;
+  margin: 0.2rem 0 0;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
 }
 
 .species {
-  padding: 0.2rem 0.45rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
 .meta,
 .device-line {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.4rem;
   align-items: center;
   color: var(--muted);
-  font-size: 0.72rem;
-  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  margin-top: 0.6rem;
   flex-wrap: wrap;
 }
 
@@ -212,14 +212,14 @@
 }
 
 .btn {
-  height: 36px;
-  padding: 0 0.85rem;
-  border-radius: 10px;
+  height: 42px;
+  padding: 0 1rem;
+  border-radius: 12px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
@@ -249,12 +249,4 @@
   font-size: 2rem;
   font-weight: 400;
   box-shadow: 0 10px 24px rgba(19, 236, 19, 0.24);
-}
-
-
-
-@media (min-width: 768px) {
-  .pets-grid {
-    grid-template-columns: 1fr 1fr;
-  }
 }
