@@ -43,96 +43,81 @@
       </div>
     </section>
 
-    <!-- Activity Stats Card -->
-    <section class="card-section mock-disabled">
-      <div class="card">
-        <div class="card-header">
-          <h3>Activity Stats</h3>
-          <span class="card-badge">Today</span>
-        </div>
-        <div class="stats-list">
-          <!-- Steps -->
-          <div class="stat-item">
-            <div class="stat-header">
-              <div class="stat-title">
-                <span class="material-symbols-outlined icon-primary">steps</span>
-                <span>Steps</span>
-              </div>
-              <div class="stat-value">8,432 <span class="text-muted">/ 10,000</span></div>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 84%;"></div>
-            </div>
-          </div>
-          <!-- Active Minutes -->
-          <div class="stat-item">
-            <div class="stat-header">
-              <div class="stat-title">
-                <span class="material-symbols-outlined icon-primary">timer</span>
-                <span>Active Minutes</span>
-              </div>
-              <div class="stat-value">45 <span class="text-muted">/ 60 min</span></div>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 75%;"></div>
-            </div>
-          </div>
-          <!-- Calories -->
-          <div class="stat-item">
-            <div class="stat-header">
-              <div class="stat-title">
-                <span class="material-symbols-outlined icon-primary">local_fire_department</span>
-                <span>Calories Burned</span>
-              </div>
-              <div class="stat-value">320 <span class="text-muted">kcal</span></div>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 50%;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Health & Safety Section -->
-    <section class="card-section mock-disabled" style="position: relative;">
-      <h3 class="section-title">Health & Safety</h3>
-      <div class="action-grid">
-        <button type="button" class="action-btn">
-          <span class="material-symbols-outlined icon-primary action-icon">security</span>
-          <span>Safe Zones</span>
-        </button>
-        <button type="button" class="action-btn">
-          <span class="material-symbols-outlined icon-primary action-icon">clinical_notes</span>
-          <span>Medical</span>
-        </button>
-        <button type="button" class="action-btn">
-          <span class="material-symbols-outlined icon-primary action-icon">vaccines</span>
-          <span>Vaccines</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Tracker Settings -->
+    <!-- Device Dashboard -->
     <section class="card-section">
-      <div class="card">
+      <div class="card dashboard-card">
         <div class="card-header">
-          <h3>Tracker Settings</h3>
+          <h3>Device Dashboard</h3>
+          <span class="card-badge">{{ deviceDisplayName() }}</span>
         </div>
+        @if (alarmActive()) {
+        <div class="alarm-banner alarm-banner-active">
+          <span class="material-symbols-outlined">warning</span>
+          <div>
+            <strong>{{ alarmTitle() }}</strong>
+            <p>{{ alarmMetaLabel() }}</p>
+          </div>
+        </div>
+        } @else {
+        <div class="alarm-banner">
+          <span class="material-symbols-outlined">check_circle</span>
+          <div>
+            <strong>No active alarm</strong>
+            <p>{{ alarmMetaLabel() }}</p>
+          </div>
+        </div>
+        }
+
+        <div class="dashboard-grid">
+          <article class="dashboard-tile">
+            <span class="tile-label">Battery</span>
+            <strong>{{ batteryLabel() }}</strong>
+            <small>{{ chargingLabel() }}</small>
+          </article>
+          <article class="dashboard-tile" [class.dashboard-tile-alert]="alarmActive()">
+            <span class="tile-label">Alarm</span>
+            <strong>{{ alarmTitle() }}</strong>
+            <small>{{ alarmMetaLabel() }}</small>
+          </article>
+          <article class="dashboard-tile">
+            <span class="tile-label">GPS fix</span>
+            <strong>{{ locationStatusLabel() }}</strong>
+            <small>{{ liveTrackingEnabled() ? 'Live tracking on' : 'Live tracking off' }}</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="card-section">
+      <div class="card location-card">
+        <div class="card-header">
+          <h3>Location Snapshot</h3>
+          <span class="card-badge">{{ attributesFreshnessText() }}</span>
+        </div>
+        <div class="location-summary">
+          <div>
+            <p class="location-title">{{ locationLabel() }}</p>
+            <p class="location-desc">{{ locationCoordinatesLabel() }}</p>
+          </div>
+          <span class="location-meta" [title]="attributesFreshnessTooltip()">{{ deviceBusinessId() }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card-section">
+      <div class="card details-card">
+        <div class="card-header">
+          <h3>More Telemetry</h3>
+          <button type="button" class="details-toggle" (click)="toggleDetails()">
+            {{ detailsExpanded() ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+
+        @if (detailsExpanded()) {
         <div class="settings-list">
           <div class="setting-item">
             <div class="setting-info">
-              <span class="material-symbols-outlined icon-primary">battery_5_bar</span>
-              <div>
-                <p class="setting-title">Battery Status</p>
-                <p class="setting-desc">{{ chargingLabel() }}</p>
-              </div>
-            </div>
-            <span class="setting-value text-primary font-bold">{{ batteryLabel() }}</span>
-          </div>
-          <div class="setting-item">
-            <div class="setting-info">
-              <span class="material-symbols-outlined text-muted">fingerprint</span>
+              <span class="material-symbols-outlined icon-primary">fingerprint</span>
               <div>
                 <p class="setting-title">Device ID</p>
                 <p class="setting-desc">{{ deviceDisplayName() }}</p>
@@ -140,13 +125,22 @@
             </div>
             <span class="setting-value font-mono text-muted">{{ deviceBusinessId() }}</span>
           </div>
-          <div class="setting-item no-border">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="material-symbols-outlined icon-primary">cell_tower</span>
+              <div>
+                <p class="setting-title">Connectivity</p>
+                <p class="setting-desc">{{ deviceInfo()?.connectivityStatus || 'Unknown' }}</p>
+              </div>
+            </div>
+            <span class="setting-value text-primary font-bold">{{ deviceInfo()?.locationStatus || 'No fix' }}</span>
+          </div>
+          <div class="setting-item">
             <div class="setting-info">
               <span class="material-symbols-outlined icon-primary">sensors</span>
               <div>
                 <p class="setting-title">Live Tracking</p>
-                <p class="setting-desc">{{ liveTrackingEnabled() ? 'Real-time GPS updates' : 'Location updates disabled'
-                  }}</p>
+                <p class="setting-desc">{{ liveTrackingEnabled() ? 'Real-time GPS updates' : 'Location updates disabled' }}</p>
               </div>
             </div>
             <label class="toggle-switch">
@@ -154,7 +148,28 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="material-symbols-outlined icon-primary">battery_5_bar</span>
+              <div>
+                <p class="setting-title">Charging</p>
+                <p class="setting-desc">{{ chargingLabel() }}</p>
+              </div>
+            </div>
+            <span class="setting-value text-muted">{{ deviceInfo()?.traccarLastUpdate ? 'Updated' : 'Unknown' }}</span>
+          </div>
+          <div class="setting-item no-border">
+            <div class="setting-info">
+              <span class="material-symbols-outlined icon-primary">pets</span>
+              <div>
+                <p class="setting-title">Assigned pet</p>
+                <p class="setting-desc">{{ pet.name }}</p>
+              </div>
+            </div>
+            <span class="setting-value text-muted">{{ deviceInfo()?.assignedPet?.name || pet.name }}</span>
+          </div>
         </div>
+        }
       </div>
     </section>
 

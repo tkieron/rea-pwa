@@ -23,6 +23,7 @@ export class PetProfilePage {
   readonly loadError = signal<string | null>(null);
   readonly pet = signal<PetResponseDto | null>(null);
   readonly deviceInfo = signal<DeviceInfoResponseDto | null>(null);
+  readonly detailsExpanded = signal(false);
 
   readonly petId = this.readPetId();
 
@@ -112,6 +113,39 @@ export class PetProfilePage {
     return battery == null ? 'N/A' : `${battery}%`;
   }
 
+  alarmActive(): boolean {
+    return this.deviceInfo()?.alarmTime != null;
+  }
+
+  alarmTitle(): string {
+    const type = this.deviceInfo()?.alarmType;
+    if (!this.alarmActive()) {
+      return 'No alarm';
+    }
+
+    return type ? this.titleize(type) : 'Alarm';
+  }
+
+  alarmMetaLabel(): string {
+    const alarmTime = this.deviceInfo()?.alarmTime;
+    if (!alarmTime) {
+      return 'No active alarm';
+    }
+
+    const date = new Date(alarmTime);
+    if (Number.isNaN(date.getTime())) {
+      return 'Alarm active';
+    }
+
+    const diffMs = Date.now() - date.getTime();
+    if (!Number.isFinite(diffMs) || diffMs < 0) {
+      return 'Alarm active';
+    }
+
+    const duration = this.formatElapsedDuration(Math.floor(diffMs / 60000));
+    return duration === 'now' ? 'Alarm active' : duration;
+  }
+
   chargingLabel(): string {
     const charging = this.deviceInfo()?.charging;
     if (charging == null) {
@@ -124,6 +158,15 @@ export class PetProfilePage {
     return this.deviceInfo()?.liveTrackingEnabled ?? false;
   }
 
+  locationStatusLabel(): string {
+    const status = this.deviceInfo()?.locationStatus;
+    if (!status) {
+      return 'No fix';
+    }
+
+    return this.titleize(status);
+  }
+
   locationLabel(): string {
     const status = this.deviceInfo()?.locationStatus;
     const address = this.deviceInfo()?.lastPosition?.address;
@@ -133,6 +176,15 @@ export class PetProfilePage {
     }
 
     return status || 'No location';
+  }
+
+  locationCoordinatesLabel(): string {
+    const pos = this.deviceInfo()?.lastPosition;
+    if (pos?.latitude == null || pos.longitude == null) {
+      return 'Waiting for the first GPS fix';
+    }
+
+    return `Lat ${pos.latitude.toFixed(4)} • Long ${pos.longitude.toFixed(4)}`;
   }
 
   speedLabel(): string {
@@ -167,10 +219,8 @@ export class PetProfilePage {
     if (minutes == null) {
       return 'Telemetry age unknown';
     }
-    if (minutes < 1) {
-      return 'Status now';
-    }
-    return `Status ${minutes} min ago`;
+    const duration = this.formatElapsedDuration(minutes);
+    return duration === 'now' ? 'Status now' : `Status ${duration} ago`;
   }
 
   attributesFreshnessTooltip(): string {
@@ -179,6 +229,19 @@ export class PetProfilePage {
       return 'Status: brak daty odczytu atrybutow';
     }
     return `Status z ${this.formatDateTime(timestamp)}`;
+  }
+
+  toggleDetails(): void {
+    this.detailsExpanded.update((value) => !value);
+  }
+
+  titleize(value: string): string {
+    return value
+      .toLowerCase()
+      .split(/[_\s-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 
   private loadData(petId: number): void {
@@ -249,6 +312,38 @@ export class PetProfilePage {
     }
 
     return date.toLocaleString();
+  }
+
+  private formatElapsedDuration(totalMinutes: number): string {
+    if (totalMinutes <= 0) {
+      return 'now';
+    }
+
+    if (totalMinutes < 60) {
+      return `${totalMinutes} min`;
+    }
+
+    if (totalMinutes <= 1440) {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const parts = [`${hours} h`];
+      if (minutes > 0) {
+        parts.push(`${minutes} min`);
+      }
+      return parts.join(' ');
+    }
+
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    const parts = [`${days} d`];
+    if (hours > 0) {
+      parts.push(`${hours} h`);
+    }
+    if (minutes > 0) {
+      parts.push(`${minutes} min`);
+    }
+    return parts.join(' ');
   }
 
   private readPetId(): number | null {

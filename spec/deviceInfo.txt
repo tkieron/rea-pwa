@@ -1,0 +1,133 @@
+Aktualny kontrakt jest taki: w kodzie endpoint ma ścieżkę /api/v1/devices/{deviceId}/info, nie device/{id}/info bez prefiksu /api/v1 (src/main/java/pl/rea/api/device/DeviceQueryController.java:14-38).
+
+  Endpoint
+
+  - GET /api/v1/devices/{deviceId}/info
+  - Wymaga uwierzytelnienia JWT (@PreAuthorize("isAuthenticated()")).
+  - Zwraca jeden obiekt DeviceInfoResponseDto bez wrappera listy (src/main/java/pl/rea/api/device/DeviceQueryController.java:32-38, src/main/java/pl/rea/api/device/dto/DeviceInfoResponseDto.java:6-36).
+
+  Błędy
+
+  - 401 Unauthorized jeśli nie ma poprawnego użytkownika.
+  - 404 Not Found jeśli urządzenie nie należy do zalogowanego użytkownika albo nie istnieje (src/main/java/pl/rea/api/device/DeviceQueryService.java:104-109).
+
+  Pola odpowiedzi
+
+  - id Long - wewnętrzne ID urządzenia.
+  - businessId String - biznesowy identyfikator urządzenia.
+  - displayName String - nazwa wyświetlana.
+  - traccarDeviceId Long | null - ID urządzenia w Traccar.
+  - connectivityStatus String - status łączności:
+      - jeśli istnieje snapshot traccar_device, bierze dokładnie traccar_device.status,
+      - jeśli snapshotu nie ma i traccarDeviceId == null, zwraca NOT_CONNECTED,
+      - jeśli snapshotu nie ma, ale traccarDeviceId != null, zwraca SYNC_PENDING (src/main/java/pl/rea/api/device/DeviceQueryService.java:140-149).
+  - sensorLive Boolean - true tylko gdy traccar_device.status równa się online bez względu na wielkość liter; w pozostałych przypadkach false (src/main/java/pl/rea/api/device/DeviceQueryService.java:142-148).
+  - locationStatus String - wyliczany:
+      - NO_POSITION, gdy brak pozycji,
+      - LIVE, gdy jest pozycja i sensorLive == true,
+      - STALE, gdy jest pozycja, ale sensorLive == false (src/main/java/pl/rea/api/device/DeviceQueryService.java:157-161).
+  - locationLive Boolean - true tylko gdy sensorLive == true i istnieje lastPosition; inaczej false (src/main/java/pl/rea/api/device/DeviceQueryService.java:157-161).
+
+  Telemetria
+
+  - batteryPercent Integer | null - z traccar_device.batteryLevel, a jeśli brakuje to z najnowszego device_attributes.batteryLevel.
+  - charging Boolean | null - z traccar_device.charge, fallback do device_attributes.charge.
+  - versionFw Integer | null - z traccar_device.versionFw, fallback do device_attributes.versionFw.
+  - rssi Integer | null - z traccar_device.rssi, fallback do device_attributes.rssi.
+  - motion Boolean | null - z traccar_device.motion, fallback do device_attributes.motion.
+  - sat Integer | null - z traccar_device.sat, fallback do device_attributes.sat.
+  - distance Double | null - z traccar_device.distance, fallback do device_attributes.distance.
+  - totalDistance Double | null - z traccar_device.totalDistance, fallback do device_attributes.totalDistance.
+  - hours Long | null - z traccar_device.hours, fallback do device_attributes.hours.
+  - heartRate Integer | null - z traccar_device.heartRate, fallback do device_attributes.heartRate.
+  - ip String | null - z traccar_device.ip, fallback do device_attributes.ip.
+  - alarmTime OffsetDateTime | null - tylko z traccar_device.alarmTime.
+  - alarmType String | null - tylko z traccar_device.alarmType.
+  - traccarLastUpdate OffsetDateTime | null - tylko z traccar_device.lastUpdate (src/main/java/pl/rea/api/device/DeviceQueryService.java:140-151, src/main/java/pl/rea/api/device/DeviceQueryService.java:217-230, src/main/java/pl/rea/api/
+    device/DeviceQueryService.java:233-266).
+
+  Dane powiązane
+
+  - assignedPet DeviceInfoAssignedPetDto | null
+      - id Long
+      - name String
+      - null, jeśli urządzenie nie jest przypięte do żadnego zwierzaka (src/main/java/pl/rea/api/device/DeviceQueryService.java:111-138, src/main/java/pl/rea/api/device/DeviceQueryService.java:190-198).
+  - lastPosition DeviceInfoLastPositionDto | null
+      - traccarPositionId Long
+      - deviceTime OffsetDateTime | null
+      - fixTime OffsetDateTime | null
+      - serverTime OffsetDateTime | null
+      - latitude Double
+      - longitude Double
+      - speed Double | null
+      - course Double | null
+      - address String | null
+      - null, jeśli nie ma znanej pozycji (src/main/java/pl/rea/api/device/DeviceQueryService.java:121-127, src/main/java/pl/rea/api/device/DeviceQueryService.java:200-214, src/main/java/pl/rea/api/device/dto/
+        DeviceInfoLastPositionDto.java:6-19).
+
+  Live tracking
+
+  - liveTrackingEnabled Boolean | null
+  - Jest wyciągane z traccar_device.attributesJson.
+  - Backend sprawdza kolejno klucze: liveTracking, live_tracking, live, realtime, realTime.
+  - Obsługiwane wartości:
+      - boolean true/false,
+      - liczby 0/1,
+      - teksty true/false/yes/no/on/off.
+  - Jeśli JSON jest pusty, niepoprawny albo brak dopasowania, pole będzie null (src/main/java/pl/rea/api/device/DeviceQueryService.java:131-155, src/main/java/pl/rea/api/device/DeviceQueryService.java:269-351).
+
+  Ważne dla PWA
+
+  - To jest endpoint do odświeżenia całego widoku szczegółów urządzenia.
+  - Najbezpieczniej traktować wszystkie pola poza id, businessId, displayName jako opcjonalne.
+  - assignedPet i lastPosition mogą być null.
+  - connectivityStatus i locationStatus są stringami, ale ich bieżące wartości w implementacji są opisane wyżej.
+  - Część telemetrii może pochodzić z fallbacku device_attributes, więc UI nie powinien zakładać, że źródłem zawsze jest snapshot Traccar.
+
+  Przykładowa odpowiedź
+
+  {
+    "id": 123,
+    "businessId": "TRK-INFO",
+    "displayName": "Tracker TRK-INFO",
+    "traccarDeviceId": 2002,
+    "connectivityStatus": "online",
+    "sensorLive": true,
+    "locationStatus": "LIVE",
+    "locationLive": true,
+    "batteryPercent": 87,
+    "charging": true,
+    "versionFw": 12,
+    "liveTrackingEnabled": true,
+    "alarmTime": "2026-04-22T10:15:30Z",
+    "alarmType": "lowPower",
+    "traccarLastUpdate": "2026-04-22T10:15:30Z",
+    "assignedPet": {
+      "id": 55,
+      "name": "Cooper"
+    },
+    "lastPosition": {
+      "traccarPositionId": 1657,
+      "deviceTime": null,
+      "fixTime": "2026-04-22T10:15:30Z",
+      "serverTime": "2026-04-22T10:15:30Z",
+      "latitude": 52.1,
+      "longitude": 21.0,
+      "speed": 0.0,
+      "course": null,
+      "address": "Warsaw"
+    },
+    "rssi": 63,
+    "motion": false,
+    "sat": 9,
+    "distance": 12.5,
+    "totalDistance": 100.0,
+    "hours": 8,
+    "heartRate": 72,
+    "ip": "10.0.0.1"
+  }
+
+dodatkowe dane do zastosowania na widokach:
+
+ - http://localhost:4200/pet-profile/1
+ - http://localhost:4200/main-view-map

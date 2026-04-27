@@ -101,14 +101,28 @@
       <span class="live" [class.live-offline]="!isLive()">{{ liveLabel() }}</span>
     </div>
 
+    @if (alarmActive()) {
+    <div class="alarm-banner alarm-banner-active">
+      <span class="material-symbols-outlined">warning</span>
+      <div>
+        <strong>{{ alarmTitle() }}</strong>
+        <p>{{ alarmMetaLabel() }}</p>
+      </div>
+    </div>
+    }
+
     <div class="stats">
       <article>
         <h3>{{ batteryLabel() }}</h3>
         <p>Battery</p>
       </article>
       <article>
-        <h3>{{ statusLabel() }}</h3>
-        <p>Status</p>
+        <h3>{{ alarmActive() ? alarmTitle() : 'No alarm' }}</h3>
+        <p>Alarm</p>
+      </article>
+      <article>
+        <h3>{{ gpsLabel() }}</h3>
+        <p>GPS fix</p>
       </article>
       <article>
         <h3>{{ updatedLabel() }}</h3>

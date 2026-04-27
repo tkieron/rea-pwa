@@ -44,6 +44,8 @@ export interface DeviceInfoResponseDto {
   batteryPercent: number | null;
   charging: boolean | null;
   liveTrackingEnabled: boolean | null;
+  alarmTime: string | null;
+  alarmType: string | null;
 
   traccarLastUpdate: string | null;
   attributesReadAt?: string | null;

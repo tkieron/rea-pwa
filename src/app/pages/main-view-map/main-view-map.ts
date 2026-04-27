@@ -174,6 +174,39 @@ export class MainViewMapPage {
     return Boolean(device?.locationLive || device?.sensorLive);
   }
 
+  alarmActive(): boolean {
+    return this.currentDeviceInfo()?.alarmTime != null;
+  }
+
+  alarmTitle(): string {
+    const type = this.currentDeviceInfo()?.alarmType;
+    if (!this.alarmActive()) {
+      return 'No alarm';
+    }
+
+    return type ? this.titleize(type) : 'Alarm';
+  }
+
+  alarmMetaLabel(): string {
+    const alarmTime = this.currentDeviceInfo()?.alarmTime;
+    if (!alarmTime) {
+      return 'No active alarm';
+    }
+
+    const date = new Date(alarmTime);
+    if (Number.isNaN(date.getTime())) {
+      return 'Alarm active';
+    }
+
+    const diffMs = Date.now() - date.getTime();
+    if (!Number.isFinite(diffMs) || diffMs < 0) {
+      return 'Alarm active';
+    }
+
+    const duration = this.formatElapsedDuration(Math.floor(diffMs / 60000));
+    return duration === 'Now' ? 'Alarm active' : duration;
+  }
+
   liveLabel(): string {
     return this.isLive() ? 'Live' : 'Offline';
   }
@@ -183,25 +216,42 @@ export class MainViewMapPage {
     return typeof battery === 'number' ? `${Math.round(battery)}%` : '—';
   }
 
-  statusLabel(): string {
+  gpsLabel(): string {
     const device = this.currentDeviceInfo();
     if (!device) {
       return this.currentPet()?.assignedDevice ? 'Tracker' : 'No tracker';
     }
 
     if (device.locationLive) {
-      return 'Live';
-    }
-
-    if (device.connectivityStatus) {
-      return this.titleize(device.connectivityStatus);
+      return 'Live GPS';
     }
 
     if (device.locationStatus) {
       return this.titleize(device.locationStatus);
     }
 
+    if (device.connectivityStatus) {
+      return this.titleize(device.connectivityStatus);
+    }
+
     return 'Unknown';
+  }
+
+  gpsMetaLabel(): string {
+    const device = this.currentDeviceInfo();
+    if (!device) {
+      return 'No device info';
+    }
+
+    if (device.sensorLive) {
+      return 'Sensor live';
+    }
+
+    if (device.connectivityStatus) {
+      return this.titleize(device.connectivityStatus);
+    }
+
+    return 'No connectivity data';
   }
 
   updatedLabel(): string {
@@ -216,15 +266,7 @@ export class MainViewMapPage {
       return 'Now';
     }
 
-    const mins = Math.floor(diffMs / 60000);
-    if (mins <= 0) {
-      return 'Now';
-    }
-    if (mins < 60) {
-      return `${mins}m`;
-    }
-    const hours = Math.floor(mins / 60);
-    return `${hours}h`;
+    return this.formatElapsedDuration(Math.floor(diffMs / 60000));
   }
 
   detailTitle(): string {
@@ -339,5 +381,37 @@ export class MainViewMapPage {
       .filter(Boolean)
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
+  }
+
+  private formatElapsedDuration(totalMinutes: number): string {
+    if (totalMinutes <= 0) {
+      return 'Now';
+    }
+
+    if (totalMinutes < 60) {
+      return `${totalMinutes} min`;
+    }
+
+    if (totalMinutes <= 1440) {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const hourParts = [`${hours} h`];
+      if (minutes > 0) {
+        hourParts.push(`${minutes} min`);
+      }
+      return hourParts.join(' ');
+    }
+
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    const parts = [`${days} d`];
+    if (hours > 0) {
+      parts.push(`${hours} h`);
+    }
+    if (minutes > 0) {
+      parts.push(`${minutes} min`);
+    }
+    return parts.join(' ');
   }
 }
