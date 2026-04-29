@@ -273,5 +273,35 @@ describe('AuthSessionService', () => {
     expect(localStorage.getItem(USER_LOGIN_KEY)).toBeNull();
     expect(localStorage.getItem(USER_ROLE_KEY)).toBeNull();
   });
-});
 
+  it('should logout without emitting session expired event', () => {
+    setTokenPair({
+      accessToken: futureJwt(),
+      refreshToken: futureJwt(7200),
+      tokenType: 'Bearer',
+    });
+    localStorage.setItem(USER_ID_KEY, '1');
+    localStorage.setItem(USER_LOGIN_KEY, 'john');
+    localStorage.setItem(USER_ROLE_KEY, 'USER');
+
+    service.logout();
+
+    expect(localStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
+    expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBeNull();
+    expect(localStorage.getItem(TOKEN_TYPE_KEY)).toBeNull();
+    expect(localStorage.getItem(USER_ID_KEY)).toBeNull();
+    expect(localStorage.getItem(USER_LOGIN_KEY)).toBeNull();
+    expect(localStorage.getItem(USER_ROLE_KEY)).toBeNull();
+    expect(authEventsMock.emit).not.toHaveBeenCalled();
+    expect(routerMock.navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('should not navigate during logout when already on login route', () => {
+    routerMock.url = '/login';
+
+    service.logout();
+
+    expect(routerMock.navigateByUrl).not.toHaveBeenCalled();
+    expect(authEventsMock.emit).not.toHaveBeenCalled();
+  });
+});

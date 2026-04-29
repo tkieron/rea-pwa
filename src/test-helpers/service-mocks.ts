@@ -5,6 +5,7 @@ export function createAuthSessionServiceMock() {
   return {
     initializeSessionLifecycle: vi.fn(),
     hasActiveSession: vi.fn(() => false),
+    logout: vi.fn(),
   };
 }
 
@@ -32,6 +33,7 @@ export function createToastServiceMock() {
 export function createPetsServiceMock() {
   return {
     list: vi.fn(),
+    getRoute: vi.fn(),
     resolvePhotoUrl: vi.fn((url: string | null) => (url ? `resolved/${url}` : null)),
   };
 }
@@ -47,4 +49,3 @@ export function createApiFeedbackServiceMock() {
     showError: vi.fn(),
   };
 }
-

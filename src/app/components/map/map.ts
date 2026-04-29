@@ -12,6 +12,12 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 
+export interface MapRoutePoint {
+  lat: number;
+  lng: number;
+  course?: number | null;
+}
+
 @Component({
   selector: 'app-map',
   standalone: true,
@@ -25,7 +31,9 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
   @Input() petName = 'Pet';
   @Input() live = false;
   @Input() disabled = false;
+  @Input() routePoints: MapRoutePoint[] = [];
   @Output() zoomChanged = new EventEmitter<number>();
+  @Output() markerClicked = new EventEmitter<void>();
 
   @ViewChild('mapHost', { static: true }) private mapHostRef!: ElementRef<HTMLDivElement>;
 
@@ -33,12 +41,17 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
   private tileLayer: L.TileLayer | null = null;
   private petMarker: L.Marker | null = null;
   private positionPulse: L.CircleMarker | null = null;
+  private routeLine: L.Polyline | null = null;
+  private routeStartMarker: L.CircleMarker | null = null;
+  private routeEndMarker: L.CircleMarker | null = null;
+  private routeDirectionMarkers: L.Marker[] = [];
   private readonly defaultCenter: L.LatLngExpression = [52.2297, 21.0122];
   private readonly defaultZoom = 12;
   private readonly trackedZoom = 17;
   private readonly minZoom = 3;
   private readonly maxZoom = 19;
   private lastPositionKey: string | null = null;
+  private readonly handleMarkerClick = () => this.markerClicked.emit();
   private readonly handleZoomEnd = () => this.emitZoomChanged();
 
   ngAfterViewInit(): void {
@@ -56,9 +69,11 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
       changes['longitude'] ||
       changes['petName'] ||
       changes['live'] ||
-      changes['disabled']
+      changes['disabled'] ||
+      changes['routePoints']
     ) {
       this.syncPosition(false);
+      this.syncRoute();
     }
   }
 
@@ -71,6 +86,10 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
     this.tileLayer = null;
     this.petMarker = null;
     this.positionPulse = null;
+    this.routeLine = null;
+    this.routeStartMarker = null;
+    this.routeEndMarker = null;
+    this.routeDirectionMarkers = [];
   }
 
   zoomIn(): void {
@@ -131,6 +150,7 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
 
     this.mapInstance = map;
     this.emitZoomChanged();
+    this.syncRoute();
   }
 
   private syncPosition(forceRecenter: boolean): void {
@@ -173,6 +193,7 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
         icon: this.createPetIcon(),
         keyboard: false,
       }).addTo(map);
+      this.petMarker.on('click', this.handleMarkerClick);
     } else {
       this.petMarker.setLatLng(latLng);
       this.petMarker.setIcon(this.createPetIcon());
@@ -202,6 +223,123 @@ export class Map implements AfterViewInit, OnChanges, OnDestroy {
       this.positionPulse.remove();
       this.positionPulse = null;
     }
+  }
+
+  private syncRoute(): void {
+    const map = this.mapInstance;
+    if (!map) {
+      return;
+    }
+
+    const latLngs = this.routePoints
+      .map((point) => L.latLng(point.lat, point.lng))
+      .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+
+    if (latLngs.length < 2) {
+      this.clearRouteLayers();
+      return;
+    }
+
+    if (!this.routeLine) {
+      this.routeLine = L.polyline(latLngs, {
+        color: '#13ec13',
+        opacity: 0.88,
+        weight: 5,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(map);
+    } else {
+      this.routeLine.setLatLngs(latLngs);
+    }
+
+    const start = latLngs[0];
+    const end = latLngs[latLngs.length - 1];
+    if (!this.routeStartMarker) {
+      this.routeStartMarker = L.circleMarker(start, {
+        radius: 6,
+        color: '#0f1710',
+        fillColor: '#a2b2a2',
+        fillOpacity: 1,
+        weight: 2,
+      }).addTo(map);
+    } else {
+      this.routeStartMarker.setLatLng(start);
+    }
+
+    if (!this.routeEndMarker) {
+      this.routeEndMarker = L.circleMarker(end, {
+        radius: 7,
+        color: '#0f1710',
+        fillColor: '#13ec13',
+        fillOpacity: 1,
+        weight: 2,
+      }).addTo(map);
+    } else {
+      this.routeEndMarker.setLatLng(end);
+    }
+
+    this.syncRouteDirectionMarkers();
+
+    map.fitBounds(L.latLngBounds(latLngs), {
+      animate: true,
+      padding: [40, 120],
+      maxZoom: this.trackedZoom,
+    });
+  }
+
+  private clearRouteLayers(): void {
+    this.routeLine?.remove();
+    this.routeStartMarker?.remove();
+    this.routeEndMarker?.remove();
+    for (const marker of this.routeDirectionMarkers) {
+      marker.remove();
+    }
+    this.routeLine = null;
+    this.routeStartMarker = null;
+    this.routeEndMarker = null;
+    this.routeDirectionMarkers = [];
+  }
+
+  private syncRouteDirectionMarkers(): void {
+    const map = this.mapInstance;
+    if (!map) {
+      return;
+    }
+
+    for (const marker of this.routeDirectionMarkers) {
+      marker.remove();
+    }
+
+    const directionalPoints = this.routePoints.filter(
+      (point) =>
+        Number.isFinite(point.lat) &&
+        Number.isFinite(point.lng) &&
+        typeof point.course === 'number' &&
+        Number.isFinite(point.course),
+    );
+    const maxDirectionMarkers = 24;
+    const stride = Math.max(1, Math.ceil(directionalPoints.length / maxDirectionMarkers));
+
+    this.routeDirectionMarkers = directionalPoints
+      .filter((_, index) => index % stride === 0)
+      .map((point) =>
+        L.marker([point.lat, point.lng], {
+          icon: this.createRouteDirectionIcon(point.course as number),
+          interactive: false,
+          keyboard: false,
+        }).addTo(map),
+      );
+  }
+
+  private createRouteDirectionIcon(course: number): L.DivIcon {
+    const normalizedCourse = Math.round((((course % 360) + 360) % 360) * 10) / 10;
+
+    return L.divIcon({
+      className: 'rea-route-direction-host',
+      html: `<span class="rea-route-direction" style="--course:${normalizedCourse}deg" aria-hidden="true"></span>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+    });
   }
 
   private createPetIcon(): L.DivIcon {

@@ -1,10 +1,21 @@
 import { Component, ViewChild, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { finalize, of, switchMap } from 'rxjs';
-import { Map as AppMapComponent } from '../../components/map/map';
+import { Map as AppMapComponent, MapRoutePoint } from '../../components/map/map';
 import { ApiFeedbackService } from '../../services/api-feedback';
+import { AuthSessionService } from '../../services/auth-session';
 import { DeviceInfoResponseDto, DevicesService } from '../../services/devices';
 import { PetResponseDto, PetsService } from '../../services/pets';
+
+interface TrackerDetailItem {
+  label: string;
+  value: string;
+}
+
+interface TrackerDetailSection {
+  title: string;
+  items: TrackerDetailItem[];
+}
 
 @Component({
   selector: 'app-main-view-map-page',
@@ -17,6 +28,7 @@ export class MainViewMapPage {
   private readonly petsService = inject(PetsService);
   private readonly devicesService = inject(DevicesService);
   private readonly apiFeedback = inject(ApiFeedbackService);
+  private readonly authSession = inject(AuthSessionService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
@@ -26,6 +38,11 @@ export class MainViewMapPage {
   readonly currentPhotoSrc = signal<string | null>(null);
   readonly sheetCollapsed = signal(false);
   readonly zoomPanelCollapsed = signal(false);
+  readonly drawerOpen = signal(false);
+  readonly trackerDetailsOpen = signal(false);
+  readonly routeHistoryLoading = signal(false);
+  readonly routeHistoryPoints = signal<MapRoutePoint[]>([]);
+  readonly detailSnapshotAt = signal(Date.now());
   readonly mapZoom = signal(12);
   readonly mapMinZoom = signal(3);
   readonly mapMaxZoom = signal(19);
@@ -39,6 +56,19 @@ export class MainViewMapPage {
   profileLink(): string {
     const pet = this.currentPet();
     return pet ? `/pet-profile/${pet.id}` : '/pets';
+  }
+
+  openDrawer(): void {
+    this.drawerOpen.set(true);
+  }
+
+  closeDrawer(): void {
+    this.drawerOpen.set(false);
+  }
+
+  logout(): void {
+    this.closeDrawer();
+    this.authSession.logout();
   }
 
   toggleSheetCollapse(): void {
@@ -59,6 +89,51 @@ export class MainViewMapPage {
 
   expandZoomPanel(): void {
     this.zoomPanelCollapsed.set(false);
+  }
+
+  openTrackerDetails(): void {
+    if (!this.currentDeviceInfo()) {
+      return;
+    }
+
+    this.detailSnapshotAt.set(Date.now());
+    this.trackerDetailsOpen.set(true);
+  }
+
+  closeTrackerDetails(): void {
+    this.trackerDetailsOpen.set(false);
+  }
+
+  showTodayRouteHistory(): void {
+    const pet = this.currentPet();
+    if (!pet) {
+      return;
+    }
+
+    this.routeHistoryLoading.set(true);
+    this.petsService
+      .getRoute(pet.id, { preset: 'today', timezone: this.routeTimezone() })
+      .pipe(finalize(() => this.routeHistoryLoading.set(false)))
+      .subscribe({
+        next: (route) => {
+          this.routeHistoryPoints.set(
+            route.points
+              .filter((point) => point.gps && Number.isFinite(point.lat) && Number.isFinite(point.lng))
+              .map((point) => ({ lat: point.lat, lng: point.lng, course: point.course })),
+          );
+          this.trackerDetailsOpen.set(false);
+        },
+        error: (error: unknown) => {
+          this.apiFeedback.showError(error, {
+            title: 'Nie udalo sie zaladowac historii pozycji',
+            fallbackMessage: 'Nie udalo sie pobrac trasy zwierzaka.',
+          });
+        },
+      });
+  }
+
+  private routeTimezone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   }
 
   zoomMapIn(): void {
@@ -129,25 +204,6 @@ export class MainViewMapPage {
     return this.currentPet()?.name ?? 'No pet';
   }
 
-  currentPetNameUpper(): string {
-    return this.currentPetName().toUpperCase();
-  }
-
-  petSubtitle(): string {
-    const pet = this.currentPet();
-    if (!pet) {
-      return 'Dodaj zwierzaka, aby zobaczyc szczegoly';
-    }
-
-    const parts = [pet.breed?.name].filter(Boolean) as string[];
-    const age = this.petAgeLabel(pet.dateOfBirth);
-    if (age) {
-      parts.push(age);
-    }
-
-    return parts.join(' • ') || 'Profil zwierzaka';
-  }
-
   markerCaption(): string {
     const pet = this.currentPet();
     if (!pet) {
@@ -188,23 +244,7 @@ export class MainViewMapPage {
   }
 
   alarmMetaLabel(): string {
-    const alarmTime = this.currentDeviceInfo()?.alarmTime;
-    if (!alarmTime) {
-      return 'No active alarm';
-    }
-
-    const date = new Date(alarmTime);
-    if (Number.isNaN(date.getTime())) {
-      return 'Alarm active';
-    }
-
-    const diffMs = Date.now() - date.getTime();
-    if (!Number.isFinite(diffMs) || diffMs < 0) {
-      return 'Alarm active';
-    }
-
-    const duration = this.formatElapsedDuration(Math.floor(diffMs / 60000));
-    return duration === 'Now' ? 'Alarm active' : duration;
+    return this.formatTimestampDelta(this.currentDeviceInfo()?.alarmTime, 'No active alarm');
   }
 
   liveLabel(): string {
@@ -255,51 +295,80 @@ export class MainViewMapPage {
   }
 
   updatedLabel(): string {
-    const ts = this.currentDeviceInfo()?.traccarLastUpdate ?? this.currentDeviceInfo()?.lastPosition?.serverTime;
-    if (!ts) {
-      return '—';
-    }
-
-    const date = new Date(ts);
-    const diffMs = Date.now() - date.getTime();
-    if (!Number.isFinite(diffMs) || diffMs < 0) {
-      return 'Now';
-    }
-
-    return this.formatElapsedDuration(Math.floor(diffMs / 60000));
-  }
-
-  detailTitle(): string {
-    const pos = this.currentDeviceInfo()?.lastPosition;
-    if (pos?.address) {
-      return pos.address;
-    }
-    if (pos?.latitude != null && pos?.longitude != null) {
-      return 'Tracked position';
-    }
-    return this.currentPet()?.assignedDevice ? 'No recent position' : 'No tracker assigned';
-  }
-
-  detailCoordsLabel(): string {
-    const pos = this.currentDeviceInfo()?.lastPosition;
-    if (pos?.latitude == null || pos.longitude == null) {
-      return this.currentPet()?.assignedDevice ? 'Waiting for tracker position...' : 'Assign tracker to enable location';
-    }
-
-    return `Lat: ${pos.latitude.toFixed(4)} • Long: ${pos.longitude.toFixed(4)}`;
-  }
-
-  speedLabel(): string {
-    const speed = this.currentDeviceInfo()?.lastPosition?.speed;
-    if (typeof speed !== 'number') {
-      return '—';
-    }
-
-    return `${speed.toFixed(speed >= 10 ? 0 : 1)} km/h`;
+    return this.formatTimestampDelta(
+      this.currentDeviceInfo()?.traccarLastUpdate ?? this.currentDeviceInfo()?.lastPosition?.serverTime,
+      '—',
+    );
   }
 
   petAvatarLetter(): string {
     return this.currentPetName().trim().charAt(0).toUpperCase() || 'P';
+  }
+
+  trackerDetailSections(): TrackerDetailSection[] {
+    const device = this.currentDeviceInfo();
+    if (!device) {
+      return [];
+    }
+
+    const pet = this.currentPet();
+    const position = device.lastPosition;
+
+    return [
+      {
+        title: 'Identity',
+        items: [
+          { label: 'Pet', value: pet?.name ?? '—' },
+          { label: 'Device', value: device.displayName || '—' },
+          { label: 'Business ID', value: device.businessId || '—' },
+          { label: 'Traccar Device ID', value: this.formatMaybeNumber(device.traccarDeviceId) },
+          { label: 'Assigned Pet', value: device.assignedPet?.name ?? pet?.name ?? '—' },
+        ],
+      },
+      {
+        title: 'Status',
+        items: [
+          { label: 'Connectivity', value: this.formatText(device.connectivityStatus) },
+          { label: 'Sensor live', value: this.formatBoolean(device.sensorLive) },
+          { label: 'Location status', value: this.formatText(device.locationStatus) },
+          { label: 'Location live', value: this.formatBoolean(device.locationLive) },
+          { label: 'Live tracking', value: this.formatBoolean(device.liveTrackingEnabled) },
+          { label: 'Alarm type', value: this.formatText(device.alarmType) },
+          { label: 'Alarm time', value: this.formatTimestampDelta(device.alarmTime, '—') },
+          { label: 'Traccar last update', value: this.formatTimestampDelta(device.traccarLastUpdate, '—') },
+          { label: 'Attributes read at', value: this.formatTimestampDelta(device.attributesReadAt ?? null, '—') },
+        ],
+      },
+      {
+        title: 'Power & telemetry',
+        items: [
+          { label: 'Battery', value: this.formatBattery(device.batteryPercent) },
+          { label: 'Charging', value: this.formatBoolean(device.charging) },
+          { label: 'RSSI', value: this.formatMaybeNumber(device.rssi) },
+          { label: 'Motion', value: this.formatBoolean(device.motion) },
+          { label: 'Sat', value: this.formatMaybeNumber(device.sat) },
+          { label: 'Heart rate', value: this.formatMaybeNumber(device.heartRate) },
+          { label: 'Distance', value: this.formatDistance(device.distance) },
+          { label: 'Total distance', value: this.formatDistance(device.totalDistance) },
+          { label: 'Hours', value: this.formatHours(device.hours) },
+          { label: 'IP', value: device.ip || '—' },
+        ],
+      },
+      {
+        title: 'Location',
+        items: [
+          { label: 'Position ID', value: this.formatMaybeNumber(position?.traccarPositionId ?? null) },
+          { label: 'Address', value: position?.address || '—' },
+          { label: 'Latitude', value: this.formatCoordinate(position?.latitude) },
+          { label: 'Longitude', value: this.formatCoordinate(position?.longitude) },
+          { label: 'Speed', value: this.formatSpeed(position?.speed) },
+          { label: 'Course', value: this.formatCourse(position?.course) },
+          { label: 'Device time', value: this.formatDateTime(position?.deviceTime ?? null) },
+          { label: 'Fix time', value: this.formatDateTime(position?.fixTime ?? null) },
+          { label: 'Server time', value: this.formatDateTime(position?.serverTime ?? null) },
+        ],
+      },
+    ];
   }
 
   private loadMainViewData(): void {
@@ -338,6 +407,7 @@ export class MainViewMapPage {
           this.currentPet.set(pet);
           this.currentDeviceInfo.set(deviceInfo);
           this.currentPhotoSrc.set(this.petsService.resolvePhotoUrl(pet?.photoUrl ?? null));
+          this.detailSnapshotAt.set(Date.now());
         },
         error: (error: unknown) => {
           this.loadError.set(true);
@@ -349,38 +419,118 @@ export class MainViewMapPage {
       });
   }
 
-  private petAgeLabel(dateOfBirth: string | null): string | null {
-    if (!dateOfBirth) {
-      return null;
-    }
-
-    const dob = new Date(dateOfBirth);
-    if (Number.isNaN(dob.getTime())) {
-      return null;
-    }
-
-    const now = new Date();
-    let years = now.getFullYear() - dob.getFullYear();
-    const monthDiff = now.getMonth() - dob.getMonth();
-    const dayDiff = now.getDate() - dob.getDate();
-    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-      years -= 1;
-    }
-
-    if (years <= 0) {
-      return '<1 yr';
-    }
-
-    return `${years} yr${years === 1 ? '' : 's'}`;
-  }
-
   private titleize(value: string): string {
     return value
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
       .toLowerCase()
       .split(/[_\s-]+/)
       .filter(Boolean)
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
+  }
+
+  private formatText(value: string | null | undefined): string {
+    if (!value) {
+      return '—';
+    }
+
+    return this.titleize(value);
+  }
+
+  private formatBoolean(value: boolean | null | undefined): string {
+    if (value == null) {
+      return 'Unknown';
+    }
+
+    return value ? 'Yes' : 'No';
+  }
+
+  private formatMaybeNumber(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return `${value}`;
+  }
+
+  private formatBattery(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return `${Math.round(value)}%`;
+  }
+
+  private formatDistance(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return `${value.toFixed(value >= 10 ? 0 : 1)} km`;
+  }
+
+  private formatHours(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return `${value} h`;
+  }
+
+  private formatCoordinate(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return value.toFixed(4);
+  }
+
+  private formatSpeed(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return `${value.toFixed(value >= 10 ? 0 : 1)} km/h`;
+  }
+
+  private formatCourse(value: number | null | undefined): string {
+    if (value == null) {
+      return '—';
+    }
+
+    return `${Math.round(value)}°`;
+  }
+
+  private formatTimestampDelta(value: string | null | undefined, emptyLabel: string): string {
+    if (!value) {
+      return emptyLabel;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    const diffMs = this.detailSnapshotAt() - date.getTime();
+    if (!Number.isFinite(diffMs) || diffMs < 0) {
+      return this.formatDateTime(value);
+    }
+
+    const elapsed = this.formatElapsedDuration(Math.floor(diffMs / 60000));
+    return elapsed === 'Now' ? this.formatDateTime(value) : `${elapsed} ago • ${this.formatDateTime(value)}`;
+  }
+
+  private formatDateTime(value: string | null | undefined): string {
+    if (!value) {
+      return '—';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString();
   }
 
   private formatElapsedDuration(totalMinutes: number): string {

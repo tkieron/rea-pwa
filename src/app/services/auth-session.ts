@@ -166,6 +166,14 @@ export class AuthSessionService {
     }
   }
 
+  logout(): void {
+    this.clearSession();
+
+    if (this.router.url !== '/login') {
+      void this.router.navigateByUrl('/login');
+    }
+  }
+
   handleExpiredToken(): void {
     this.clearSession();
     this.authEvents.emit(401);

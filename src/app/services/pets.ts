@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../core/api.tokens';
 import { PetBreedDto } from './pet-breeds';
@@ -32,6 +32,29 @@ export interface SavePetRequestDto {
   gender: PetGender;
   dateOfBirth?: string | null;
   assignedDeviceId?: number | null;
+}
+
+export type PetRoutePreset = 'today' | 'yesterday';
+
+export interface PetRoutePointDto {
+  lat: number;
+  lng: number;
+  course: number | null;
+  gps: boolean;
+}
+
+export interface PetRouteResponseDto {
+  petId: number;
+  from: string;
+  to: string;
+  points: PetRoutePointDto[];
+}
+
+export interface PetRouteOptions {
+  preset?: PetRoutePreset;
+  timezone?: string;
+  from?: string;
+  to?: string;
 }
 
 @Injectable({
@@ -71,6 +94,27 @@ export class PetsService {
   getPhoto(petId: number): Observable<Blob> {
     return this.http.get(`${this.apiBaseUrl}/api/v1/pets/${petId}/photo`, {
       responseType: 'blob',
+    });
+  }
+
+  getRoute(petId: number, options: PetRouteOptions): Observable<PetRouteResponseDto> {
+    let params = new HttpParams();
+
+    if (options.preset) {
+      params = params.set('preset', options.preset);
+    }
+    if (options.timezone) {
+      params = params.set('timezone', options.timezone);
+    }
+    if (options.from) {
+      params = params.set('from', options.from);
+    }
+    if (options.to) {
+      params = params.set('to', options.to);
+    }
+
+    return this.http.get<PetRouteResponseDto>(`${this.apiBaseUrl}/api/v1/pets/${petId}/route`, {
+      params,
     });
   }
 

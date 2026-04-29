@@ -1,11 +1,13 @@
 <main class="main-view">
   <section class="map-layer">
     <app-map class="map-canvas" [latitude]="mapLatitude()" [longitude]="mapLongitude()" [petName]="currentPetName()"
-      [live]="isLive()" (zoomChanged)="onMapZoomChanged($event)" />
+      [live]="isLive()" [routePoints]="routeHistoryPoints()" (zoomChanged)="onMapZoomChanged($event)"
+      (markerClicked)="openTrackerDetails()" />
     <div class="map-layer-overlay"></div>
 
     <div class="header-overlay">
-      <button type="button" class="circle">☰</button>
+      <button type="button" class="circle" data-testid="main-menu-button" aria-label="Open menu"
+        (click)="openDrawer()">☰</button>
       <div class="header-actions">
         <button type="button" class="circle">🔔</button>
         <button type="button" class="circle">⚙</button>
@@ -28,6 +30,7 @@
     }
   </section>
 
+  @if (!trackerDetailsOpen()) {
   <div class="fab-stack">
     @if (!zoomPanelCollapsed()) {
     <div class="zoom-widget" aria-label="Map controls">
@@ -71,6 +74,7 @@
     </div>
     }
   </div>
+  }
 
   <section class="sheet" [class.sheet-collapsed]="sheetCollapsed()">
     @if (!sheetCollapsed()) {
@@ -94,57 +98,33 @@
     </div>
     } @else {
     <div class="sheet-head">
-      <div>
-        <h2>{{ currentPetName() }}</h2>
-        <p>{{ petSubtitle() }}</p>
-      </div>
+      <h2>{{ currentPetName() }}</h2>
       <span class="live" [class.live-offline]="!isLive()">{{ liveLabel() }}</span>
     </div>
 
-    @if (alarmActive()) {
-    <div class="alarm-banner alarm-banner-active">
-      <span class="material-symbols-outlined">warning</span>
-      <div>
-        <strong>{{ alarmTitle() }}</strong>
-        <p>{{ alarmMetaLabel() }}</p>
-      </div>
-    </div>
-    }
-
     <div class="stats">
-      <article>
-        <h3>{{ batteryLabel() }}</h3>
-        <p>Battery</p>
+      <article class="stat-tile">
+        <span class="stat-label">Battery</span>
+        <strong>{{ batteryLabel() }}</strong>
+        <small>{{ currentDeviceInfo()?.charging ? 'Charging' : 'Not charging' }}</small>
       </article>
-      <article>
-        <h3>{{ alarmActive() ? alarmTitle() : 'No alarm' }}</h3>
-        <p>Alarm</p>
+      <article class="stat-tile" [class.stat-tile-alert]="alarmActive()">
+        <span class="stat-label">Alarm</span>
+        <strong>{{ alarmActive() ? alarmTitle() : 'Clear' }}</strong>
+        <small>{{ alarmActive() ? alarmMetaLabel() : 'No active alarm' }}</small>
       </article>
-      <article>
-        <h3>{{ gpsLabel() }}</h3>
-        <p>GPS fix</p>
+      <article class="stat-tile">
+        <span class="stat-label">GPS fix</span>
+        <strong>{{ gpsLabel() }}</strong>
+        <small>{{ gpsMetaLabel() }}</small>
       </article>
-      <article>
-        <h3>{{ updatedLabel() }}</h3>
-        <p>Updated</p>
+      <article class="stat-tile">
+        <span class="stat-label">Updated</span>
+        <strong>{{ updatedLabel() }}</strong>
+        <small>Last telemetry</small>
       </article>
-    </div>
-
-    <div class="detail">
-      <div>
-        <h4>{{ detailTitle() }}</h4>
-        <p>{{ detailCoordsLabel() }}</p>
-      </div>
-      <div class="speed">{{ speedLabel() }}</div>
     </div>
     }
-
-    <div class="quick-actions">
-      <button type="button">History</button>
-      <button type="button">Light</button>
-      <button type="button">Sound</button>
-      <button type="button" class="go">Go</button>
-    </div>
     } @else {
     <div class="sheet-collapsed-bar">
       <div class="sheet-collapsed-meta">
@@ -177,4 +157,108 @@
       </a>
     </nav>
   </section>
+
+  @if (drawerOpen()) {
+  <div class="drawer-backdrop" (click)="closeDrawer()"></div>
+  <aside class="app-drawer" aria-label="Main menu">
+    <header class="drawer-header">
+      <div>
+        <strong>PetTrack</strong>
+        <span>Menu</span>
+      </div>
+      <button type="button" class="drawer-close" data-testid="drawer-close-button" aria-label="Close menu"
+        (click)="closeDrawer()">×</button>
+    </header>
+
+    <nav class="drawer-nav">
+      <a routerLink="/main-view-map" routerLinkActive="active-drawer-nav" [routerLinkActiveOptions]="{exact: true}"
+        (click)="closeDrawer()">
+        <span class="material-symbols-outlined">map</span>
+        <span>Map</span>
+      </a>
+      <a routerLink="/pets" routerLinkActive="active-drawer-nav" [routerLinkActiveOptions]="{exact: true}"
+        (click)="closeDrawer()">
+        <span class="material-symbols-outlined">pets</span>
+        <span>Pets</span>
+      </a>
+      <a routerLink="/activity" (click)="closeDrawer()">
+        <span class="material-symbols-outlined">monitoring</span>
+        <span>Activity</span>
+      </a>
+      <a [routerLink]="profileLink()" routerLinkActive="active-drawer-nav" (click)="closeDrawer()">
+        <span class="material-symbols-outlined">person</span>
+        <span>Profile</span>
+      </a>
+      <a routerLink="/connect-device" routerLinkActive="active-drawer-nav" (click)="closeDrawer()">
+        <span class="material-symbols-outlined">qr_code_scanner</span>
+        <span>Connect Device</span>
+      </a>
+    </nav>
+
+    <button type="button" class="drawer-logout" data-testid="drawer-logout-button" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span>
+      <span>Wyloguj</span>
+    </button>
+  </aside>
+  }
+
+  @if (trackerDetailsOpen() && currentDeviceInfo(); as device) {
+  <div class="tracker-backdrop" (click)="closeTrackerDetails()">
+    <section class="tracker-sheet" role="dialog" aria-modal="true" aria-label="Tracker details"
+      (click)="$event.stopPropagation()">
+      <div class="tracker-topline">
+        <div class="handle"></div>
+        <button type="button" class="tracker-close" (click)="closeTrackerDetails()" aria-label="Close tracker details">
+          ×
+        </button>
+      </div>
+
+      <header class="tracker-head">
+        <div>
+          <p>Tracker details</p>
+          <h2>{{ currentPetName() }}</h2>
+          <span>{{ device.displayName || device.businessId }}</span>
+        </div>
+        <span class="live" [class.live-offline]="!isLive()">{{ liveLabel() }}</span>
+      </header>
+
+      <div class="tracker-chips">
+        <span class="tracker-chip">
+          <strong>{{ batteryLabel() }}</strong>
+          <small>Battery</small>
+        </span>
+        <span class="tracker-chip" [class.tracker-chip-alert]="alarmActive()">
+          <strong>{{ alarmActive() ? alarmTitle() : 'Clear' }}</strong>
+          <small>{{ alarmActive() ? alarmMetaLabel() : 'No alarm' }}</small>
+        </span>
+        <span class="tracker-chip">
+          <strong>{{ gpsLabel() }}</strong>
+          <small>{{ gpsMetaLabel() }}</small>
+        </span>
+      </div>
+
+      <div class="tracker-actions">
+        <button type="button" (click)="showTodayRouteHistory()" [disabled]="routeHistoryLoading()">
+          {{ routeHistoryLoading() ? 'Loading history...' : 'History today' }}
+        </button>
+      </div>
+
+      <div class="tracker-sections">
+        @for (section of trackerDetailSections(); track section.title) {
+        <section class="tracker-section">
+          <h3>{{ section.title }}</h3>
+          <dl>
+            @for (item of section.items; track item.label) {
+            <div>
+              <dt>{{ item.label }}</dt>
+              <dd>{{ item.value }}</dd>
+            </div>
+            }
+          </dl>
+        </section>
+        }
+      </div>
+    </section>
+  </div>
+  }
 </main>
